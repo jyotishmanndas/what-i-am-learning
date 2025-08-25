@@ -9,22 +9,19 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
 
     if (!email) {
-        return new NextResponse("Email is required", { status: 400 })
-    }
-
-    const existingUser = await prisma.user.findUnique({
-        where: { email }
-    });
-    if (existingUser) {
-        return new NextResponse("Email already exists", { status: 404 })
+        return NextResponse.json({ msg: "Email is required" }, { status: 400 })
     };
 
     // otp generate
-    const code = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false })
+    const code = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
+    console.log(code);
+
     setOtp(email, code);
 
-    await prisma.user.create({
-        data: { email }
+    await prisma.user.upsert({
+        where: { email },
+        update: {},
+        create: { email },
     });
 
     const transporter = nodemailer.createTransport({
@@ -40,5 +37,7 @@ export async function POST(req: NextRequest) {
         to: email,
         subject: "YOur OTP code",
         text: `Your login OTP is ${code}`
-    })
+    });
+
+    return NextResponse.json({ message: "OTP sent successfully" }, { status: 200 });
 }

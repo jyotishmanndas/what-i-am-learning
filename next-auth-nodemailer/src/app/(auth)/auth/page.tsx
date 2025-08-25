@@ -1,6 +1,7 @@
 "use client";
 
 import { Email } from "@/components/Email";
+import { Otp } from "@/components/Otp";
 import { useState } from "react";
 
 export default function AuthPage() {
@@ -9,7 +10,8 @@ export default function AuthPage() {
 
     return (
         <div className="min-h-screen w-full bg-[#171717] flex items-center justify-center">
-            <Email setEmail={setEmail} setStep={setStep} email={email} />
+            {step === "email" && <Email setEmail={setEmail} setStep={setStep} email={email} />}
+            {step === "otp" && <Otp email={email} />}
         </div>
     )
 }
