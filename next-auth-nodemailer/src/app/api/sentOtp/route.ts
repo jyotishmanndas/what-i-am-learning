@@ -14,8 +14,6 @@ export async function POST(req: NextRequest) {
 
         // otp generate
         const code = otpGenerator.generate(6, { upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
-        console.log(code);
-
         setOtp(email, code);
 
         await prisma.user.upsert({
