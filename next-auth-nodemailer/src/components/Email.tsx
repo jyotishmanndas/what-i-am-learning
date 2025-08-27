@@ -27,8 +27,8 @@ export function Email({ setEmail, setStep, email }: EmailProps) {
                 <div className="text-2xl font-bold text-center text-white">
                     Welcome to the Auth Page!
                 </div>
-                <div className="w-full mt-4 flex flex-col items-center gap-3">
-                    <Input className="text-white bg-[#232323] font-semibold" onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Enter your email" />
+                <div className="w-full mt-6 flex flex-col items-center gap-3 text-white font-semibold">
+                    <Input onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Enter your email" />
                     <Button onClick={sendOtp} variant="secondary" className="w-full p-5 cursor-pointer">
                         Continue with your email
                     </Button>
