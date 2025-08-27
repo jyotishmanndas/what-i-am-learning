@@ -24,13 +24,15 @@ export function Otp({ email }: OtpProps) {
             });
 
             if (res.ok) {
-                toast.success("SignIn successful")
-                router.push("/dashboard")
+                toast.success("SignIn successful");
+                router.push("/dashboard");
+            } else {
+                toast.error("Invalid OTP, please try again");
             }
         } catch (error) {
             toast.error("SignIn failed")
         }
-    }
+    };
 
     return (
         <div className="h-full flex items-center justify-center">
