@@ -10,7 +10,6 @@ interface EmailProps {
 }
 
 export function Email({ setEmail, setStep, email }: EmailProps) {
-
     const sendOtp = async () => {
         const res = await axios.post(`/api/sentOtp`, { email });
         if (res.status === 200) {
