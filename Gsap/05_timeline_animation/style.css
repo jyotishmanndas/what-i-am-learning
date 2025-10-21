@@ -1,0 +1,70 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: poppins;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+#main {
+    height: 100%;
+    width: 100%;
+    background-color: lightblue;
+    background-image: url("https://images.unsplash.com/photo-1509803874385-db7c23652552?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Y2xvdWR8ZW58MHwwfDB8fHww&auto=format&fit=crop&q=60&w=600");
+    background-position: center;
+    background-size: cover;
+}
+
+#nav {
+    /* height: 60px; */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 25px 15px;
+    color: #fff;
+}
+
+#nav h2 {
+    font-size: 25px;
+}
+
+#nav h4 {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#full {
+    height: 100%;
+    width: 30%;
+    background-color: rgba(255, 255, 255, 0.295);
+    position: absolute;
+    top: 0;
+    right: -40%;
+    backdrop-filter: blur(20px);
+    padding: 120px 50px;
+}
+
+#full h4 {
+    font-size: 40px;
+    font-weight: 400;
+    margin-bottom: 5px;
+}
+
+#full i {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    font-size: 20px;
+    font-weight: 500;
+    cursor: pointer;
+}
