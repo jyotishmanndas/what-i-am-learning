@@ -1,0 +1,49 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: poppins;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+}
+
+
+body {
+    background-color: #1e1e1e;
+}
+
+#page-1,
+#page-2,
+#page-3 {
+    height: 100%;
+    width: 100%;
+}
+
+#move {
+    background-color: #D9FF06;
+    display: flex;
+    padding: 3vw 0;
+    overflow: hidden;
+}
+
+.marque {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 3vw;
+    padding: 0 1.5vw;
+    transform: translateX(-100%);
+}
+
+.marque h1 {
+    font-size: 40px;
+    font-weight: 400;
+}
+
+.marque img {
+    height: 40px;
+}
