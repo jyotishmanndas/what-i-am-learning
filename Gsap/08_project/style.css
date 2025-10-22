@@ -16,10 +16,13 @@ body {
     width: 100%;
 }
 
+body {
+    overflow-x: hidden;
+}
 #main {
     height: 100%;
     width: 100%;
-    padding: 0px 25px;
+    padding: 0px 30px;
 }
 
 #nav {
@@ -121,11 +124,12 @@ body {
     height: 65px;
 }
 
-section{
-    padding: 0 25px;
+section {
+    padding: 0 30px;
 }
+
 section #services {
-    margin-top: 30px;
+    margin-top: 70px;
     padding: 20px 0px;
     display: flex;
     align-items: center;
@@ -133,14 +137,85 @@ section #services {
     gap: 30px;
 }
 
-#services h1{
+#services h1 {
     background-color: #B9FF66;
     padding: 5px;
     border-radius: 5px;
 
 }
 
-#services p{
+#services p {
     width: 40%;
     font-size: 18px;
+    font-weight: 500;
 }
+
+#container {
+    height: 80%;
+    width: 100%;
+    margin-top: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.elem{
+    flex-shrink: 0;
+    height: 310px;
+    width: 47%;
+    border: 2px solid black;
+    border-radius: 30px;
+    box-shadow: 0px 12px 0px black;
+    padding: 50px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.elem-part-1{
+    height: 100%;
+    width: 50%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: column;
+    /* background-color: red; */
+}
+.elem-part-2 img{
+    height: 100%;
+}
+.elem-part-1 h2{
+    font-size: 30px;
+    background-color: #B9FF66;
+    padding: 5px;
+}
+
+.elem-part-1 h4{
+    font-size: 20px;
+    font-weight: 500;
+    padding: 5px;
+}
+
+.elem-part-1 h4 i{
+   padding: 8px;
+    border-radius: 50%;
+    background-color: black;
+    color: #fff;
+}
+
+.black{
+    background-color: black;
+    color: #fff;
+}
+
+.black .elem-part-1 h2{
+    color: black;
+    background-color: white;
+}
+
+.black .elem-part-1 h4 i{
+    padding: 8px;
+     border-radius: 50%;
+     background-color: white;
+     color: black;
+ }
