@@ -1,5 +1,4 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import axios from "axios"
 import Card from './components/Card';
 import Button from './components/Button';
 
