@@ -3,6 +3,7 @@ import { uploadOnCloudinary } from "../lib/cloudinary.js";
 import { signinSchema, signupSchema } from "../lib/zod.js";
 import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const userSignup = async (req, res) => {
     const response = signupSchema.safeParse(req.body);
@@ -163,5 +164,46 @@ export const logOut = async (req, res) => {
             msg: "Something went wrong",
             error
         })
+    }
+}
+
+
+export const refreshToken = async (req, res) => {
+    try {
+        const IncomingRefreshToken = req.cookies.refreshToken;
+
+        if (!IncomingRefreshToken) {
+            return res.status(401).json({ msg: "Unauthorized request" })
+        }
+
+        const decodedToken = jwt.verify(IncomingRefreshToken, process.env.REFRESH_TOKEN);
+
+        const user = await User.findById(decodedToken?.userId);
+
+        if (!user) {
+            return res.status(401).json({ msg: "Invalid refresh token" })
+        }
+
+        if (IncomingRefreshToken !== user.refreshToken) {
+            return res.status(401).json({ msg: "Refresh token is expired or used" })
+        }
+
+        const accessToken = createAccessToken(user._id);
+        const refreshToken = createRefreshToken(user._id);
+
+        return res.status(200)
+            .cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 25 * 60 * 1000
+            })
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            })
+            .json({ msg: "Access token refreshed", accessToken, refreshToken })
+    } catch (error) {
+        return res.status(500).json({ msg: "Invalid refresh token", error })
     }
 }

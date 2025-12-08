@@ -1,13 +1,11 @@
 import express from "express"
 import dotenv from 'dotenv'
+dotenv.config()
+
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import userRoute from "./routes/user.route.js"
 import { connectDB } from "./db/index.js";
-
-dotenv.config({
-    path: "./.env"
-})
 
 const app = express();
 const port = process.env.PORT || 3000
