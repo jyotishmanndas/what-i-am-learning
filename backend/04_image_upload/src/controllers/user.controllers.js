@@ -1,6 +1,6 @@
 import { createAccessToken, createRefreshToken } from "../lib/authService.js";
 import { uploadOnCloudinary } from "../lib/cloudinary.js";
-import { signinSchema, signupSchema } from "../lib/zod.js";
+import { signinSchema, signupSchema, updateProfileSchema } from "../lib/zod.js";
 import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -143,9 +143,7 @@ export const logOut = async (req, res) => {
         )
 
         if (!user) {
-            return res.status(401).json({
-                msg: "User not found"
-            })
+            return res.status(404).json({ msg: "User not found" })
         }
 
         return res.status(200)
@@ -160,10 +158,7 @@ export const logOut = async (req, res) => {
             .json({ msg: "Logged out successful" })
     } catch (error) {
         console.log("Logout error:", error);
-        return res.status(500).json({
-            msg: "Something went wrong",
-            error
-        })
+        return res.status(500).json({ msg: "Something went wrong", error })
     }
 }
 
@@ -205,5 +200,105 @@ export const refreshToken = async (req, res) => {
             .json({ msg: "Access token refreshed", accessToken, refreshToken })
     } catch (error) {
         return res.status(500).json({ msg: "Invalid refresh token", error })
+    }
+}
+
+export const updateProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" })
+        }
+
+        const response = updateProfileSchema.safeParse(req.body);
+
+        if (!response.success) {
+            return res.status(400).json({ msg: "Invalid inputs" })
+        }
+
+        const hashedPassword = await bcrypt.hash(response.data.newpassword, 12);
+
+        await User.findByIdAndUpdate(user._id,
+            {
+                $set: {
+                    fullName: response.data.fullName,
+                    password: hashedPassword
+                }
+            }, {
+            new: true
+        })
+
+        return res.status(200).json({ msg: "profile updated successfully" })
+    } catch (error) {
+        return res.status(500).json({ msg: "Internal server error", error })
+    }
+}
+
+export const updateUserAvatar = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" })
+        }
+
+        const avatarLocalPath = req.file?.path;
+        if (!avatarLocalPath) {
+            return res.status(400).json({ msg: "Avatar field is required" })
+        }
+
+        const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+        if (!avatar) {
+            return res.status(400).json({ msg: "Error while uploading" })
+        }
+
+        await User.findByIdAndUpdate(user._id,
+            {
+                $set: {
+                    avatar
+                }
+            }, {
+            new: true
+        })
+
+        return res.status(200).json({ msg: "Avatar updated successfully" })
+
+    } catch (error) {
+        return res.status(500).json({ msg: "Internal server error", error })
+    }
+}
+
+export const updateUserCoverImage = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" })
+        }
+
+        const coverImageLocalPath = req.file?.path;
+        if (!coverImageLocalPath) {
+            return res.status(400).json({ msg: "Avatar field is required" })
+        }
+
+        const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+        if (!coverImage) {
+            return res.status(400).json({ msg: "Error while uploading" })
+        }
+
+        await User.findByIdAndUpdate(user._id,
+            {
+                $set: {
+                    coverImage
+                }
+            }, {
+            new: true
+        })
+
+        return res.status(200).json({ msg: "coverImage updated successfully" })
+
+    } catch (error) {
+        return res.status(500).json({ msg: "Internal server error", error })
     }
 }
