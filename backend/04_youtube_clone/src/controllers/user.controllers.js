@@ -49,8 +49,8 @@ export const userSignup = async (req, res) => {
             username: response.data.username.toLowerCase(),
             email: response.data.email,
             password: passwordhashed,
-            avatar,
-            coverImage
+            avatar: avatar.secure_url,
+            coverImage: coverImage.secure_url
         });
 
         const accessToken = createAccessToken(user._id);
@@ -265,7 +265,7 @@ export const updateUserAvatar = async (req, res) => {
         await User.findByIdAndUpdate(user._id,
             {
                 $set: {
-                    avatar
+                    avatar: avatar.secure_url
                 }
             }, {
             new: true
@@ -299,7 +299,7 @@ export const updateUserCoverImage = async (req, res) => {
         await User.findByIdAndUpdate(user._id,
             {
                 $set: {
-                    coverImage
+                    coverImage: coverImage.secure_url
                 }
             }, {
             new: true
@@ -371,14 +371,17 @@ export const getUserChannelProfile = async (req, res) => {
         }
     ]);
 
-    console.log(channel[0]);
+    console.log("getChannelProfile", channel);
 
     if (!channel?.length) {
         return res.status(400).json({ msg: "Channel doesn't exists" })
     }
 
-    console.log(channel);
-    return res.status(200).json("user channel fetched successfully", channel[0])
+    return res.status(200).json({
+        success: true,
+        message: "User channel fetched successfully",
+        data: channel[0]
+    });
 }
 
 export const getWatchHistory = async (req, res) => {
@@ -422,6 +425,11 @@ export const getWatchHistory = async (req, res) => {
             }
         }
     ])
+    console.log("History", user);
 
-    return res.status(200).json(user[0].watchHistory, "Watch history fetched successfully")
+    return res.status(200).json({
+        success: true,
+        message: "Watch history fetched successfully",
+        data: user[0].watchHistory
+    });
 }

@@ -22,7 +22,7 @@ export const signinSchema = z.object({
         .regex(/[a-z]/, { error: 'Password must contain at least one lowercase letter' })
         .regex(/[0-9]/, { error: 'Password must contain at least one number' })
         .regex(/[@$!%*?&]/, { error: 'Password must contain at least one special character' })
-})
+});
 
 export const updateProfileSchema = z.object({
     fullName: z.string(),
@@ -44,4 +44,18 @@ export const updateProfileSchema = z.object({
             error: "Confirm password must match new password",
             path: ["confirmPassword"]
         })
+});
+
+export const videoSchema = z.object({
+    title: z.string().min(3, { error: "Title must be at least 3 character long" }),
+    description: z.string().min(10, { error: "Description must be al least character long" }).max(30)
+});
+
+export const fileMetaSchema = z.object({
+    path: z.string().min(1, "File path is required"),
+    mimetype: z.string().min(1, "Mimetype is required"),
+    size: z.number().nonnegative("File size must be non-negative"),
+}).refine((file) => file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/'), {
+    error: "File must be an image or a video",
+    path: ["mimetype"]
 })
