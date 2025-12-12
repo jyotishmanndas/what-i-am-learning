@@ -1,5 +1,6 @@
+import mongoose from "mongoose";
 import { createAccessToken, createRefreshToken } from "../lib/authService.js";
-import { uploadOnCloudinary } from "../lib/cloudinary.js";
+import { deleteFromCloudinary, uploadOnCloudinary } from "../lib/cloudinary.js";
 import { signinSchema, signupSchema, updateProfileSchema } from "../lib/zod.js";
 import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
@@ -186,6 +187,9 @@ export const refreshToken = async (req, res) => {
         const accessToken = createAccessToken(user._id);
         const refreshToken = createRefreshToken(user._id);
 
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
         return res.status(200)
             .cookie("accessToken", accessToken, {
                 httpOnly: true,
@@ -214,7 +218,7 @@ export const updateProfile = async (req, res) => {
         const response = updateProfileSchema.safeParse(req.body);
 
         if (!response.success) {
-            return res.status(400).json({ msg: "Invalid inputs" })
+            return res.status(400).json({ msg: "Invalid inputs", error: response.error.message })
         }
 
         const hashedPassword = await bcrypt.hash(response.data.newpassword, 12);
@@ -245,6 +249,11 @@ export const updateUserAvatar = async (req, res) => {
         const avatarLocalPath = req.file?.path;
         if (!avatarLocalPath) {
             return res.status(400).json({ msg: "Avatar field is required" })
+        };
+
+        if (user.avatar) {
+            const cloudinaryId = user.avatar.split("/").pop().split(".")[0];
+            await deleteFromCloudinary(cloudinaryId)
         }
 
         const avatar = await uploadOnCloudinary(avatarLocalPath);
@@ -301,4 +310,118 @@ export const updateUserCoverImage = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ msg: "Internal server error", error })
     }
+}
+
+export const getUserChannelProfile = async (req, res) => {
+    const { username } = req.params;
+
+    if (!username) {
+        return res.status(400).json({ msg: "Username is missing" })
+    }
+
+    const channel = await User.aggregate([
+        {
+            $match: {
+                username: username
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            }
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"
+                },
+                channelsSubscribedTo: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: { $in: [req.userId, "$subscribers.subscriber"] },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                fullName: 1,
+                username: 1,
+                subscribersCount: 1,
+                channelsSubscribedTo: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverImage: 1
+            }
+        }
+    ]);
+
+    console.log(channel[0]);
+
+    if (!channel?.length) {
+        return res.status(400).json({ msg: "Channel doesn't exists" })
+    }
+
+    console.log(channel);
+    return res.status(200).json("user channel fetched successfully", channel[0])
+}
+
+export const getWatchHistory = async (req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "ownerDetails",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$ownerDetails"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res.status(200).json(user[0].watchHistory, "Watch history fetched successfully")
 }
