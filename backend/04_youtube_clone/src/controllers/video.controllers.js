@@ -362,7 +362,7 @@ export const togglePublishStatus = async (req, res) => {
             return res.status(400).json({ msg: "User not found" })
         };
 
-        if (video.owner.toString() !== user._id) {
+        if (video.owner.toString() !== req.userId) {
             return res.status(400).json({ msg: "You are not allowed to update this video details" })
         }
 
@@ -370,6 +370,8 @@ export const togglePublishStatus = async (req, res) => {
             $set: {
                 isPublished: !video.isPublished
             }
+        }, {
+            new: true
         });
 
         return res.status(200).json({ msg: "updated successfully", updateVideo })

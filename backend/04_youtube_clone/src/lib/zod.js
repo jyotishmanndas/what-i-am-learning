@@ -68,3 +68,7 @@ export const videoFileSchema = fileMetaSchema
         error: "File must be an video",
         path: ["mimetype"]
     });
+
+    export const commentSchema = z.object({
+        content: z.string().min(3).max(100, {error: "Comment must be at least 3 character long"})
+    })
