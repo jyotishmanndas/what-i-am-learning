@@ -12,7 +12,6 @@ export const uploadOnCloudinary = async (localFilePath) => {
     if (!localFilePath) return null;
 
     console.log("Uploading to Cloudinary:", localFilePath);
-
     try {
         //upload the file on cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, { resource_type: "auto" });
@@ -30,7 +29,7 @@ export const deleteFromCloudinary = async (cloudinaryId) => {
     if (!cloudinaryId) return null;
 
     try {
-        const response = await cloudinary.uploader.destroy(cloudinaryId);
+        const response = await cloudinary.uploader.destroy(cloudinaryId, {resource_type: "image"});
         return response
     } catch (error) {
         console.error("Error deleting file from Cloudinary:", error);

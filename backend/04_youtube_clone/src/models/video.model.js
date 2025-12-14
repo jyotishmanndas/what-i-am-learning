@@ -18,7 +18,15 @@ const videoSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    isPublished:{
+    videoPublicId: {
+        type: String,
+        required: true
+    },
+    thumbnailPublicId: {
+        type: String,
+        required: true
+    },
+    isPublished: {
         type: Boolean,
         default: false
     },
@@ -30,7 +38,7 @@ const videoSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    owner:{
+    owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }

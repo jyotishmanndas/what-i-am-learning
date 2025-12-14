@@ -78,7 +78,6 @@ export const userSignup = async (req, res) => {
     }
 }
 
-
 export const userSignIn = async (req, res) => {
     const response = signinSchema.safeParse(req.body);
 
@@ -129,7 +128,6 @@ export const userSignIn = async (req, res) => {
     }
 }
 
-
 export const logOut = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(
@@ -162,7 +160,6 @@ export const logOut = async (req, res) => {
         return res.status(500).json({ msg: "Something went wrong", error })
     }
 }
-
 
 export const refreshToken = async (req, res) => {
     try {
