@@ -9,6 +9,7 @@ import userRoute from "./routes/user.route.js";
 import videoRoute from "./routes/video.route.js";
 import commentRoute from "./routes/comment.route.js";
 import subscriptionRoute from "./routes/subscription.route.js";
+import tweetRoute from "./routes/twitter.route.js";
 
 const app = express();
 const port = process.env.PORT || 3000
@@ -29,6 +30,7 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/video", videoRoute);
 app.use("/api/v1/comment", commentRoute);
 app.use("/api/v1/subscription", subscriptionRoute);
+app.use("/api/v1/tweet", tweetRoute);
 
 app.listen(port, () => {
     console.log(`Server is listening to the port ${port}`);

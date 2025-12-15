@@ -71,4 +71,8 @@ export const videoFileSchema = fileMetaSchema
 
     export const commentSchema = z.object({
         content: z.string().min(3).max(100, {error: "Comment must be at least 3 character long"})
+    });
+
+     export const tweetSchema = z.object({
+        content: z.string().min(3).max(100, {error: "Tweet must be at least 3 character long"})
     })

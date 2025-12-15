@@ -131,7 +131,7 @@ export const userSignIn = async (req, res) => {
 export const logOut = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(
-            req.userId,
+            req.user._id,
             {
                 $set: {
                     refreshToken: null
@@ -206,21 +206,14 @@ export const refreshToken = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.userId);
-
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" })
-        }
-
         const response = updateProfileSchema.safeParse(req.body);
-
         if (!response.success) {
             return res.status(400).json({ msg: "Invalid inputs", error: response.error.message })
         }
 
         const hashedPassword = await bcrypt.hash(response.data.newpassword, 12);
 
-        await User.findByIdAndUpdate(user._id,
+        await User.findByIdAndUpdate(req.user._id,
             {
                 $set: {
                     fullName: response.data.fullName,
@@ -238,18 +231,13 @@ export const updateProfile = async (req, res) => {
 
 export const updateUserAvatar = async (req, res) => {
     try {
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" })
-        }
-
         const avatarLocalPath = req.file?.path;
         if (!avatarLocalPath) {
             return res.status(400).json({ msg: "Avatar field is required" })
         };
 
-        if (user.avatar) {
-            const cloudinaryId = user.avatar.split("/").pop().split(".")[0];
+        if (req.user.avatar) {
+            const cloudinaryId = req.user.avatar.split("/").pop().split(".")[0];
             await deleteFromCloudinary(cloudinaryId)
         }
 
@@ -259,7 +247,7 @@ export const updateUserAvatar = async (req, res) => {
             return res.status(400).json({ msg: "Error while uploading" })
         }
 
-        await User.findByIdAndUpdate(user._id,
+        await User.findByIdAndUpdate(req.user?._id,
             {
                 $set: {
                     avatar: avatar.secure_url
@@ -277,11 +265,6 @@ export const updateUserAvatar = async (req, res) => {
 
 export const updateUserCoverImage = async (req, res) => {
     try {
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" })
-        }
-
         const coverImageLocalPath = req.file?.path;
         if (!coverImageLocalPath) {
             return res.status(400).json({ msg: "Avatar field is required" })
@@ -293,7 +276,7 @@ export const updateUserCoverImage = async (req, res) => {
             return res.status(400).json({ msg: "Error while uploading" })
         }
 
-        await User.findByIdAndUpdate(user._id,
+        await User.findByIdAndUpdate(req.user?._id,
             {
                 $set: {
                     coverImage: coverImage.secure_url
@@ -348,7 +331,7 @@ export const getUserChannelProfile = async (req, res) => {
                 },
                 isSubscribed: {
                     $cond: {
-                        if: { $in: [req.userId, "$subscribers.subscriber"] },
+                        if: { $in: [req.user._id, "$subscribers.subscriber"] },
                         then: true,
                         else: false
                     }
@@ -385,7 +368,7 @@ export const getWatchHistory = async (req, res) => {
     const user = await User.aggregate([
         {
             $match: {
-                _id: new mongoose.Types.ObjectId(req.userId)
+                _id: new mongoose.Types.ObjectId(req.user?._id)
             }
         },
         {
