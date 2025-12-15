@@ -422,7 +422,6 @@ export const getWatchHistory = async (req, res) => {
             }
         }
     ])
-    console.log("History", user);
 
     return res.status(200).json({
         success: true,
