@@ -11,11 +11,6 @@ export const getUserChannelSubscibers = async (req, res) => {
             return res.status(400).json({ msg: "channel id is missing" });
         }
 
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(400).json({ msg: "User not found" });
-        }
-
         const subscribers = await Subscription.aggregate([
             {
                 $match: {
@@ -47,6 +42,10 @@ export const getUserChannelSubscibers = async (req, res) => {
             }
         ])
 
+        if (!subscribers.length) {
+            return res.status(400).json({ msg: "Subscribers not found" })
+        }
+
         return res.status(200).json({ msg: "Subscribers fetched Successfully", subscribers })
     } catch (error) {
         console.log(error);
@@ -60,11 +59,6 @@ export const getSubscribedChannels = async (req, res) => {
         const { subscriberId } = req.params;
         if (!subscriberId) {
             return res.status(400).json({ msg: "subscriber Id is missing" });
-        }
-
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(400).json({ msg: "User not found" });
         }
 
         const channels = await Subscription.aggregate([
@@ -98,13 +92,16 @@ export const getSubscribedChannels = async (req, res) => {
             }
         ])
 
+        if (!channels.length) {
+            return res.status(400).json({ msg: "channels not found" })
+        }
+
         return res.status(200).json({ msg: "channels fetched Successfully", channels })
     } catch (error) {
         console.log(error);
         return res.status(500).json({ msg: "Internal server error" });
     }
 }
-
 
 export const toggleSubscription = async (req, res) => {
     try {
@@ -118,17 +115,12 @@ export const toggleSubscription = async (req, res) => {
             return res.status(400).json({ msg: "channel not found" });;
         }
 
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(400).json({ msg: "User not found" });
-        };
-
-        if (channelOwner._id.toString() === user._id.toString()) {
+        if (channelOwner._id.toString() === req.user._id.toString()) {
             return res.status(400).json({ msg: "One cannot subscribe his own channel" })
         }
 
         const existingSubscription = await Subscription.findOne({
-            subscriber: user._id,
+            subscriber: req.user._id,
             channel: channelOwner._id
         })
 
@@ -139,12 +131,11 @@ export const toggleSubscription = async (req, res) => {
 
 
         const subscription = await Subscription.create({
-            subscriber: user._id,
+            subscriber: req.user._id,
             channel: channelId
         });
 
         return res.status(200).json({ msg: "Subscribed successfully", subscription })
-
     } catch (error) {
         console.log(error);
         return res.status(500).json({ msg: "Internal server error" });

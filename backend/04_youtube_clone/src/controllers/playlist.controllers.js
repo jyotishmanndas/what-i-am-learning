@@ -3,7 +3,6 @@ import { playlistSchema } from "../lib/zod.js"
 import { Playlist } from "../models/playlist.model.js";
 import { Video } from "../models/video.model.js";
 
-
 export const createPlaylist = async (req, res) => {
     try {
         const response = playlistSchema.safeParse(req.body);
@@ -28,7 +27,6 @@ export const createPlaylist = async (req, res) => {
         });
 
         return res.status(200).json({ msg: "Playlist created successfully" })
-
     } catch (error) {
         console.log("Error while creating playlist", error);
         return res.status(500).json({ msg: "Internal server error" })
@@ -188,12 +186,12 @@ export const updatePlaylist = async (req, res) => {
         }
 
         const response = playlistSchema.safeParse(req.body);
-        if(!response.success){
-            return res.satus(400).json({msg: "Invalid inputs", error: response.error.message})
+        if (!response.success) {
+            return res.satus(400).json({ msg: "Invalid inputs", error: response.error.message })
         };
 
         await Playlist.findByIdAndUpdate(playlist._id, {
-            $set:{
+            $set: {
                 name: response.data.name,
                 description: response.data.description
             }
@@ -201,7 +199,7 @@ export const updatePlaylist = async (req, res) => {
             new: true
         })
 
-        return res.status(200).json(({msg: "playlist updated successfully"}))
+        return res.status(200).json(({ msg: "playlist updated successfully" }))
     } catch (error) {
         console.log("Error while deleting the playlist", error);
         return res.status(500).json({ msg: "Internal server error" });

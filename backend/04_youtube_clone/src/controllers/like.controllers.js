@@ -116,7 +116,7 @@ export const getLikedVideos = async (req, res) => {
                 }
             },
             {
-                $sort:{
+                $sort: {
                     createdAt: -1
                 }
             },
@@ -164,8 +164,8 @@ export const getLikedVideos = async (req, res) => {
             },
         ])
 
-        if(!likedVideos.length){
-            return res.status(400).json({msg: "No liked videos found"})
+        if (!likedVideos.length) {
+            return res.status(400).json({ msg: "No liked videos found" })
         }
 
         return res.status(200).json({ msg: "All liked videos are fetched", likedVideos })

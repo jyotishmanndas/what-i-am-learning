@@ -1,17 +1,9 @@
 import mongoose from "mongoose";
 import { deleteFromCloudinary, uploadOnCloudinary } from "../lib/cloudinary.js";
 import { imageFileSchema, videoFileSchema, videoSchema } from "../lib/zod.js";
-import { User } from "../models/user.model.js";
 import { Video } from "../models/video.model.js";
 
 export const publishVideo = async (req, res) => {
-    const user = await User.findById(req.userId);
-    if (!user) {
-        return res.status(401).json({
-            msg: "User not found"
-        })
-    }
-
     try {
         const response = videoSchema.safeParse(req.body);
         if (!response.success) {
@@ -22,7 +14,7 @@ export const publishVideo = async (req, res) => {
         const thumbnailObj = req.files?.thumbnail[0];
 
         if (!videoFileObj || !thumbnailObj) {
-            return res.status(400).json({ msg: "Video and thumbnail are required" });
+            return res.status(400).json({ msg: "Video and thumbnail field are required" });
         }
 
         const videoMetaData = {
@@ -44,26 +36,26 @@ export const publishVideo = async (req, res) => {
             return res.status(400).json({ msg: "Invalid file metadata" })
         };
 
-        const videoFileUrl = await uploadOnCloudinary(videoFileObj.path);
+        const videoFileUrl = await uploadOnCloudinary(videoCheck.data.path);
         if (!videoFileUrl || !videoFileUrl.secure_url) {
             return res.status(400).json({ msg: "Error while uploading video" });
         }
 
-        const thumbnailUrl = await uploadOnCloudinary(thumbnailObj.path);
+        const thumbnailUrl = await uploadOnCloudinary(imageCheck.data.path);
         if (!thumbnailUrl || !thumbnailUrl.secure_url) {
             return res.status(400).json({ msg: "Error while uploading thumbnail" });
         }
 
         await Video.create({
-            title: response.data.title.trim(),
-            description: response.data.description.trim(),
+            title: response.data.title?.trim(),
+            description: response.data.description?.trim(),
             videoFile: videoFileUrl.secure_url,
             thumbnail: thumbnailUrl.secure_url,
             videoPublicId: videoFileUrl.public_id,
             thumbnailPublicId: thumbnailUrl.public_id,
             duration: videoFileUrl.duration,
             isPublished: false,
-            owner: user._id
+            owner: req.user._id
         });
 
         return res.status(200).json({ msg: "Video uploaded successfully" })
@@ -76,11 +68,6 @@ export const publishVideo = async (req, res) => {
 export const getAllVideos = async (req, res) => {
     try {
         const { limit, query, sortBy, sortType } = req.query;
-
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(400).json({ msg: "User not found" });
-        };
 
         const limitNumber = Math.max(Number(limit) || 10);
 
@@ -132,7 +119,7 @@ export const getAllVideos = async (req, res) => {
             }
         ])
 
-        if (!videos) {
+        if (!videos.length) {
             return res.status(400).json({ msg: "Videos not found" });
         }
 
@@ -148,11 +135,6 @@ export const getVideosById = async (req, res) => {
         const { videoId } = req.params;
         if (!videoId.trim()) {
             return res.status(400).json({ msg: "VideoId is missing" })
-        }
-
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(400).json({ msg: "User not found" });
         }
 
         const video = await Video.aggregate([
@@ -186,8 +168,8 @@ export const getVideosById = async (req, res) => {
             }
         ])
 
-        if (!video) {
-            return res.status(401).json({ msg: "Invalid video Id" })
+        if (!video.length) {
+            return res.status(401).json({ msg: "video not found" })
         }
 
         return res.status(200).json({ msg: "Video retrieved successfully", video })
@@ -209,31 +191,25 @@ export const updateVideoDetails = async (req, res) => {
             return res.status(404).json({ msg: "Video not found" })
         }
 
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" })
-        }
-
-        if (video.owner.toString() !== req.userId) {
+        if (video.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ msg: "You are not allowed to update this video details" });
         }
 
         const response = videoSchema.safeParse(req.body);
         if (!response.success) {
-            return res.status(400).json({ msg: "Invalid inputs", error: response.error.flatten })
+            return res.status(400).json({ msg: "Invalid inputs", error: response.error.message })
         };
 
         await Video.findByIdAndUpdate(video._id, {
             $set: {
-                title: response.data.title,
-                description: response.data.description
+                title: response.data.title?.trim(),
+                description: response.data.description?.trim()
             }
         }, {
             new: true
         });
 
         return res.status(200).json({ msg: "video details updated successfully" })
-
     } catch (error) {
         console.log("Update error", error);
         return res.status(500).json({ msg: "Internal server error" })
@@ -252,12 +228,7 @@ export const updateVideoThumbnail = async (req, res) => {
             return res.status(404).json({ msg: "Video not found" })
         }
 
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" })
-        }
-
-        if (video.owner.toString() !== req.userId) {
+        if (video.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ msg: "You are not allowed to update this video details" });
         }
 
@@ -296,7 +267,6 @@ export const updateVideoThumbnail = async (req, res) => {
         })
 
         return res.status(200).json({ msg: "video thumbnail updated successfully" })
-
     } catch (error) {
         console.log("Update thumbnail error", error);
         return res.status(500).json({ msg: "Internal server error" })
@@ -315,12 +285,7 @@ export const deleteVideo = async (req, res) => {
             return res.status(404).json({ msg: "Video not found" })
         }
 
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" })
-        }
-
-        if (video.owner.toString() !== req.userId) {
+        if (video.owner.toString() !== req.user._id.toString()) {
             return res.status(403).json({ msg: "You are not allowed to delete this video" });
         }
 
@@ -357,12 +322,7 @@ export const togglePublishStatus = async (req, res) => {
             return res.status(400).json({ msg: "Video not found" })
         }
 
-        const user = await User.findById(req.userId);
-        if (!user) {
-            return res.status(400).json({ msg: "User not found" })
-        };
-
-        if (video.owner.toString() !== req.userId) {
+        if (video.owner.toString() !== req.user._id) {
             return res.status(400).json({ msg: "You are not allowed to update this video details" })
         }
 
