@@ -54,7 +54,7 @@ export const videoSchema = z.object({
 export const fileMetaSchema = z.object({
     path: z.string().min(1, { error: "File path is required" }),
     mimetype: z.string().min(1, { error: "Mimetype is required" }),
-    size: z.number().nonnegative({error: "File size must be non-negative"}),
+    size: z.number().nonnegative({ error: "File size must be non-negative" }),
 });
 
 export const imageFileSchema = fileMetaSchema
@@ -69,10 +69,15 @@ export const videoFileSchema = fileMetaSchema
         path: ["mimetype"]
     });
 
-    export const commentSchema = z.object({
-        content: z.string().min(3).max(100, {error: "Comment must be at least 3 character long"})
-    });
+export const commentSchema = z.object({
+    content: z.string().min(3).max(100, { error: "Comment must be at least 3 character long" })
+});
 
-     export const tweetSchema = z.object({
-        content: z.string().min(3).max(100, {error: "Tweet must be at least 3 character long"})
-    })
+export const tweetSchema = z.object({
+    content: z.string().min(3).max(100, { error: "Tweet must be at least 3 character long" })
+});
+
+export const playlistSchema = z.object({
+    name: z.string().min(2),
+    description: z.string().min(5)
+})
