@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Products from './pages/Products';
 import Navbar from './components/Navbar';
 import Users from './pages/Users';
+import Cart from './pages/Cart';
 
 const App = () => {
   const { pathname } = useLocation();
@@ -22,6 +23,9 @@ const App = () => {
         </ProtectedRoute>} />
         <Route path='/users' element={<ProtectedRoute>
           <Users />
+        </ProtectedRoute>} />
+        <Route path='/cart' element={<ProtectedRoute>
+          <Cart />
         </ProtectedRoute>} />
       </Routes>
     </div>

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { axiosInstance } from '../config/axiosInstance';
-import { useQuery } from '@tanstack/react-query'
+import React from 'react'
 import { useProductApi } from '../hooks/useProductApi';
+import ProductsCard from '../components/ProductsCard';
 
 const Products = () => {
   const { data, isPending } = useProductApi();
@@ -11,11 +10,9 @@ const Products = () => {
   }
 
   return (
-    <div className='p-8'>
-      {data?.map((p) => (
-        <div key={p.id}>
-          {p.title}
-        </div>
+    <div className='p-8 grid grid-cols-5 gap-4'>
+      {data?.map((product) => (
+        <ProductsCard key={product.id} product={product} />
       ))}
     </div>
   )

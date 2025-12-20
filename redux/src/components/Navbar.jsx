@@ -12,7 +12,7 @@ const Navbar = () => {
                 <NavLink to="/users" className="text-lg font-semibold">Users</NavLink>
             </div>
             <div className='flex items-center gap-10'>
-                <span className='text-lg font-semibold'>cart</span>
+                <NavLink to="/cart" className='text-lg font-semibold'>Cart</NavLink>
                 <span className='text-lg font-semibold'>Profile</span>
             </div>
         </div>
