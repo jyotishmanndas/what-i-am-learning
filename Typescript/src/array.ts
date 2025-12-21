@@ -45,3 +45,11 @@ const filterAge = filteredUser([
 ])
 
 console.log(filterAge);
+
+// Tuple
+let userInfo: [string, number, boolean?]
+
+userInfo=["jyoti", 22]
+userInfo = ["jyoti", 22, true]
+
+const chaiItems: [name: string, price:number] = ["Masala", 50]

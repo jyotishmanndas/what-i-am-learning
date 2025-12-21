@@ -1,1 +1,1 @@
-{"root":["./src/array.ts","./src/enums.ts","./src/generics.ts","./src/index.ts","./src/interface.ts","./src/types.ts"],"version":"5.6.2"}
+{"root":["./advanced-typescript-apis/src/readonly.ts","./advanced-typescript-apis/src/partial.ts","./advanced-typescript-apis/src/pick.ts","./advanced-typescript-apis/src/record-map.ts","./src/array.ts","./src/enums.ts","./src/generics.ts","./src/index.ts","./src/interface.ts","./src/moretypes.ts","./src/types.ts"],"errors":true,"version":"5.6.2"}
