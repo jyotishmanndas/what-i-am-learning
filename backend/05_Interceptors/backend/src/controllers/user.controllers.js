@@ -43,7 +43,14 @@ export const userSignUp = async (req, res) => {
                 secure: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
-            .json({ msg: "User created successfully", accessToken, refreshToken })
+            .json({
+                msg: "User created successfully", accessToken,
+                user: {
+                    id: user._id,
+                    username: user.username,
+                    email: user.email
+                }
+            })
 
     } catch (error) {
         console.log("Error while signup", error);
@@ -87,7 +94,14 @@ export const userSignIn = async (req, res) => {
                 secure: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
-            .json({ msg: "User signin successfully", accessToken, refreshToken })
+            .json({
+                msg: "User signin successfully", accessToken,
+                user: {
+                    id: existingUser._id,
+                    username: existingUser.username,
+                    email: existingUser.email
+                }
+            })
 
     } catch (error) {
         console.log("Error while signin", error);
@@ -129,21 +143,18 @@ export const refreshToken = async (req, res) => {
     try {
         const token = req.cookies.refreshToken;
         if (!token) {
-            return res.status(400).json({ msg: "Unauthorized request" })
+            return res.status(401).json({ msg: "Unauthorized request" })
         }
 
         const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-        if (!decodedToken.userId) {
-            return res.status(400).json({ msg: "Invalid token" });
-        }
 
         const user = await User.findById(decodedToken.userId);
         if (!user) {
-            return res.status(400).json({ msg: "User not found" })
+            return res.status(401).json({ msg: "User not found" })
         }
 
         if (user.refreshToken !== token) {
-            return res.status(400).json({ msg: "Refresh token is expired or used" });
+            return res.status(401).json({ msg: "Refresh token is expired or used" });
         }
 
         const accessToken = createAccessToken(user._id);
@@ -163,9 +174,23 @@ export const refreshToken = async (req, res) => {
                 secure: true,
                 maxAge: 7 * 24 * 60 * 60 * 1000
             })
-            .json({ msg: "Access token refreshed", accessToken, refreshToken })
+            .json({ msg: "Access token refreshed" })
     } catch (error) {
         console.log("Error while refresh token", error);
         return res.status(500).json({ msg: "Internal server error" });
+    }
+}
+
+export const userDetails = async (req, res) => {
+    try {
+        if (req.user._id) {
+            return res.status(200).json({
+                msg: "user data fetched successfully",
+                user: req.user
+            })
+        }
+    } catch (error) {
+        console.log("Error while getting user details", error);
+        return res.status(500).json({ msg: "Internal server error" })
     }
 }

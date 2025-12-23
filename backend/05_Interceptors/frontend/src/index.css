@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+*{
+    font-family: poppins;
+    font-weight: 400;
+}

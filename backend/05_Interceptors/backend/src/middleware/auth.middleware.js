@@ -6,7 +6,7 @@ export const verifyJWT = async (req, res, next) => {
     try {
         const token = req.cookies?.accessToken;
         if (!token) {
-            return res.status(400).json({ msg: "No token found" })
+            return res.status(401).json({ msg: "Access token missing" })
         };
 
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
