@@ -5,7 +5,7 @@ import { Navigate, Outlet } from 'react-router';
 const ProtectedRoute = () => {
     const { user, loading } = useSelector(state => state.auth);
 
-    if(loading){
+    if (loading) {
         return <div>loading...</div>
     }
 
