@@ -1,14 +1,17 @@
 import express, { urlencoded } from "express";
+import { createServer } from "http";
 import dotenv from "dotenv";
 dotenv.config();
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import userRoute from "./routes/user.routes.js"
 import { connectDb } from "./db/index.js";
+import { initializeSocket } from "./socket/socket.js";
 
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+const server = createServer(app);
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
@@ -20,13 +23,15 @@ app.use(urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 
 
+initializeSocket(server)
+
 connectDb();
 
 app.use("/api/v1/user", userRoute);
 
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is listening to the port ${PORT}`);
 })
 
