@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { socketAuthMiddleware } from "../middleware/socket.middleware";
+import { socketAuthMiddleware } from "../middleware/socket.middleware.js";
 
 export const initializeSocket = (server) => {
     const io = new Server(server, {

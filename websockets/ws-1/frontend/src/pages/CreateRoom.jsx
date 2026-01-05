@@ -1,11 +1,19 @@
 import React from 'react'
 import { useForm } from "react-hook-form"
+import { useSocket } from '../hooks/useSocket';
+import { useNavigate } from "react-router"
 
 const CreateRoom = () => {
     const { register, handleSubmit, reset } = useForm();
+    const navigate = useNavigate()
+
+    const socketRef = useSocket();
 
     const onsubmit = (data) => {
-        console.log(data);
+        console.log(data.roomId);
+        socketRef.current.emit("join-room", data.roomId);
+        navigate("/chat")
+        reset()
     }
 
     return (
@@ -15,7 +23,7 @@ const CreateRoom = () => {
                 <form onSubmit={handleSubmit(onsubmit)}>
                     <div>
                         <input
-                            {...register("room", { required: true })}
+                            {...register("roomId", { required: true })}
                             type="text"
                             className="w-full px-4 py-2 rounded-lg border border-gray-300"
                             placeholder="Enter your roomId"
