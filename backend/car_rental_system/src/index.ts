@@ -5,7 +5,8 @@ dotenv.config();
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./db/db";
-import userRoutes from "./routes/user.routes"
+import userRoutes from "./routes/user.routes";
+import bookingRoutes from "./routes/booking.route";
 
 const PORT = process.env.PORT || 3000;
 
@@ -23,6 +24,7 @@ app.use(cookieParser());
 connectDB();
 
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/booking", bookingRoutes);
 
 
 
