@@ -29,4 +29,6 @@ export const bookingSchema = z.object({
     days: z.coerce.number().int().positive().max(10),
     rentPerDay: z.coerce.number().positive().max(2000, { error: "rent per day cannot be more than 2000" }),
     status: z.enum(["completed", "booked", "cancelled"])
-})
+});
+
+export const updateBookingSchema = bookingSchema.partial();

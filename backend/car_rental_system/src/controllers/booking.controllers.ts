@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { bookingSchema } from "../utils/zod";
+import { bookingSchema, updateBookingSchema } from "../utils/zod";
 import { Booking } from "../models/booking.model";
 import { User } from "../models/user.model";
 
@@ -103,5 +103,91 @@ export const getBookings = async (req: Request, res: Response) => {
     } catch (error) {
         console.log("Error while getting booking info", error);
         return res.status(500).json({ msg: "Internal server error" })
+    }
+}
+
+export const updateBooking = async (req: Request, res: Response) => {
+    try {
+        const { bookingId } = req.params;
+        if (!bookingId) {
+            return res.status(400).json({ msg: "bookingId not found" })
+        };
+
+        const existingBooking = await Booking.findById(bookingId);
+        if (!existingBooking) {
+            return res.status(404).json({ msg: "Booking not found" })
+        };
+
+        if (existingBooking.status === "completed") {
+            return res.status(400).json({ msg: "Cannot update this booking! Booking is already completed" })
+        };
+
+        if (existingBooking.status === "cancelled") {
+            return res.status(400).json({ msg: "Cannot update this booking! Booking is already cancelled" })
+        }
+
+        if (existingBooking.owner.toString() !== req.user?._id.toString()) {
+            return res.status(403).json({ msg: "booking does not belong to user" })
+        };
+
+        const payload = updateBookingSchema.safeParse(req.body);
+        if (!payload.success) {
+            return res.status(400).json({ msg: "Invalid inputs" })
+        };
+
+        const updateBooking = await Booking.findByIdAndUpdate(existingBooking._id, {
+            $set: payload.data
+        }, { new: true });
+
+        if (!updateBooking) {
+            return res.status(400).json({ msg: "Something went wrong" })
+        }
+
+        const totalCost = updateBooking.days * updateBooking.rentPerDay
+
+        return res.status(200).json({
+            success: true, data: {
+                msg: "Booking updated successfully",
+                booking: {
+                    id: updateBooking._id,
+                    carName: updateBooking.carName,
+                    days: updateBooking.days,
+                    rent_per_day: updateBooking.rentPerDay,
+                    status: updateBooking.status,
+                    totalCost
+                }
+            }
+        })
+    } catch (error) {
+        return res.status(500).json({ msg: "Internal server error" })
+    }
+}
+
+export const deleteBooking = async (req: Request, res: Response) => {
+    try {
+        const { bookingId } = req.params;
+        if (!bookingId) {
+            return res.status(400).json({ msg: "bookingId not found" })
+        };
+
+        const existingBooking = await Booking.findById(bookingId);
+        if (!existingBooking) {
+            return res.status(404).json({ msg: "Booking not found" })
+        };
+
+        if (existingBooking.owner.toString() !== req.user?._id.toString()) {
+            return res.status(400).json({ msg: "booking does not belong to user" })
+        };
+
+        await Booking.findByIdAndDelete(existingBooking._id);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                msg: "Booking deleted successfully"
+            }
+        })
+    } catch (error) {
+        return res.status(500).json({ msg: "Internal server error" });
     }
 }
