@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { bookingSchema } from "../utils/zod";
 import { Booking } from "../models/booking.model";
+import { User } from "../models/user.model";
 
 export const bookingsController = async (req: Request, res: Response) => {
     try {
@@ -39,6 +40,68 @@ export const bookingsController = async (req: Request, res: Response) => {
 
     } catch (error) {
         console.log("Error while create booking", error);
+        return res.status(500).json({ msg: "Internal server error" })
+    }
+};
+
+export const getBookings = async (req: Request, res: Response) => {
+    try {
+        const { bookingId, summary } = req.query;
+
+        if (bookingId) {
+            const bookings = await Booking.findOne({
+                _id: bookingId,
+                owner: req.user?._id
+            });
+            if (!bookings) {
+                return res.status(404).json({ msg: "booking not found" })
+            };
+
+            const totalCost = bookings.days * bookings.rentPerDay;
+
+            return res.status(200).json({
+                success: true, data: {
+                    id: bookings._id,
+                    carName: bookings.carName,
+                    days: bookings.days,
+                    rent_per_day: bookings.rentPerDay,
+                    status: bookings.status,
+                    totalCost
+                }
+            })
+        } else if (summary === "true") {
+            const user = await User.findById(req.user?._id).select("userName _id");
+            if (!user) {
+                return res.status(404).json({ msg: "user not found" });
+            };
+
+            const bookings = await Booking.find({
+                owner: user._id,
+                status: {
+                    $in: ["booked", "completed"]
+                }
+            });
+
+            const totalBookings = bookings.length;
+
+            const totalAmountSpent = bookings.reduce((acc, s) => {
+                return acc + s.days * s.rentPerDay
+            }, 0);
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    userId: user._id,
+                    username: user.userName,
+                    totalBookings,
+                    totalAmountSpent,
+                },
+            });
+        } else {
+            return res.status(400).json({ msg: "Invalid request" })
+        }
+    } catch (error) {
+        console.log("Error while getting booking info", error);
         return res.status(500).json({ msg: "Internal server error" })
     }
 }
