@@ -4,7 +4,7 @@ export const productSchema = z.object({
     productName: z.string().min(3),
     productDescription: z.string().min(5).optional(),
     price: z.object({
-        amount: z.number().positive(),
+        amount: z.coerce.number().positive(),
         currency: z.enum(["INR", "$"]).default("INR")
     })
 });
