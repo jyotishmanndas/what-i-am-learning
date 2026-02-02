@@ -33,7 +33,7 @@ export const userUpdateController = async (req, res) => {
 
         await User.findByIdAndUpdate(req.user._id, {
             $set: updateData,
-        }, { new: true });
+        }, { new: true, runValidators: true });
 
         return res.status(200).json({ success: true, msg: "profile update successfully" })
     } catch (error) {

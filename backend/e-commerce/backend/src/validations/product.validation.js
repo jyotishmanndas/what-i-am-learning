@@ -25,3 +25,12 @@ export const FileSchema = z.object({
 export const imageSchema = z.array(FileSchema)
     .min(1, "At least one image required")
     .max(5, "Maximum 5 images allowed");
+
+export const updateProductSchema = z.object({
+    productName: z.string().min(3).optional(),
+    productDescription: z.string().min(5).optional(),
+    price: z.object({
+        price: z.coerce.number().positive(),
+        currency: z.enum(["INR", "$"])
+    }).optional()
+})
