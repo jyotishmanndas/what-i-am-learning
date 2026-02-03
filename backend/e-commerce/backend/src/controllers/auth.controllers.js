@@ -1,7 +1,8 @@
 import { createAccessToken, createRefreshToken } from "../lib/authService.js";
+import { Cart } from "../models/cart.model.js";
 import { User } from "../models/user.model.js";
 import { loginSchema, registerSchema } from "../validations/auth.validation.js"
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 
 export const registerController = async (req, res) => {
     try {
@@ -11,7 +12,7 @@ export const registerController = async (req, res) => {
         };
 
         const existingUser = await User.findOne({
-            email: payload.data.email
+            email: payload.data.email.toLowerCase()
         });
         if (existingUser) {
             return res.status(400).json({ msg: "User already exists with this email" });
@@ -20,10 +21,16 @@ export const registerController = async (req, res) => {
         const hashedPassword = await bcrypt.hash(payload.data.password, 10);
         const newUser = await User.create({
             name: payload.data.name,
-            email: payload.data.email,
+            email: payload.data.email.toLowerCase(),
             mobile: payload.data.mobile,
             password: hashedPassword
         });
+
+        const cart = await Cart.create({
+            userId: newUser._id
+        });
+        newUser.cart = cart._id;
+        await newUser.save({ validateBeforeSave: false });
 
         const id = newUser._id;
         const accessToken = createAccessToken(id);
@@ -47,7 +54,8 @@ export const registerController = async (req, res) => {
                 success: true, msg: "register successfully", token: accessToken, data: {
                     name: newUser.name,
                     email: newUser.email,
-                    mobile: newUser.mobile
+                    mobile: newUser.mobile,
+                    cartId: cart._id
                 }
             })
     } catch (error) {

@@ -16,8 +16,6 @@ export const productController = async (req, res) => {
         };
 
         const images = req.files;
-        console.log(images);
-
         if (!images || images.length === 0) {
             await session.abortTransaction();
             return res.status(400).json({ msg: "Image is required" })
