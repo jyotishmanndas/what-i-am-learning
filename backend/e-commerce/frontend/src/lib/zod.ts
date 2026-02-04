@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const registerSchema = z.object({
-    name: z.string().min(3, { error: "Please provide at leat 3 character" }).max(10, {error: "Please keep it under 10 characters"}),
+    name: z.string().min(3, { error: "Name must be at least 3 character long" }).max(10, {error: "Please keep it under 10 characters"}),
     email: z.email(),
     mobile: z.string().min(10, "Please provide a valid number").max(10),
     password: z.string()

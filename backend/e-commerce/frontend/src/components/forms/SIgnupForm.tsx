@@ -6,9 +6,9 @@ import { registerSchema } from '@/lib/zod'
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field'
 import { ArrowRight, Eye, EyeOff, Lock, Mail, Phone, User } from 'lucide-react'
 import axios from "axios";
-import { axiosInstance } from '../config/axiosInstance'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
+import { axiosInstance } from '@/config/axiosInstance'
 
 const SIgnupForm = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -144,9 +144,9 @@ const SIgnupForm = () => {
                 />
             </FieldGroup>
 
-            <button className='w-full px-3 py-3 bg-black text-white mt-5 rounded-lg flex items-center justify-center gap-3'>
+            <button className='group w-full px-3 py-3 bg-black text-white mt-5 rounded-lg flex items-center justify-center gap-3'>
                 Sign up
-                <ArrowRight className='h-5 w-5 text-neutral-400' />
+                <ArrowRight className='h-4 w-4 text-neutral-400 group-hover:translate-x-1 transition-transform' />
             </button>
 
             <p className='text-center mt-3 text-sm'>Already have an account? <Link to="/login" className='text-[#009698] hover:underline transition'>Sign in here</Link></p>

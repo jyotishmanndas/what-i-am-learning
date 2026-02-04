@@ -4,11 +4,11 @@ import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
 import { loginSchema } from '@/lib/zod';
 import { Link, useNavigate } from 'react-router';
-import { axiosInstance } from "../config/axiosInstance";
 import { toast } from "sonner";
 import axios from "axios";
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { axiosInstance } from '@/config/axiosInstance';
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -96,9 +96,9 @@ const LoginForm = () => {
         />
       </FieldGroup>
 
-      <button className='w-full px-3 py-3 bg-black text-white mt-5 rounded-lg flex items-center justify-center gap-3'>
+      <button className='group w-full px-3 py-3 bg-black text-white mt-5 rounded-lg flex items-center justify-center gap-3'>
         Login
-        <ArrowRight className='h-5 w-5 text-neutral-400' />
+        <ArrowRight className='h-4 w-4 text-neutral-400 group-hover:translate-x-1 transition-transform' />
       </button>
 
       <p className='text-center mt-3 text-sm'>Don't have an account? <Link to="/signup" className='text-[#009698] hover:underline transition'>Sign up here</Link></p>
