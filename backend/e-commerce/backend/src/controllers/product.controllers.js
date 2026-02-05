@@ -9,7 +9,15 @@ export const productController = async (req, res) => {
     session.startTransaction();
 
     try {
-        const payload = productSchema.safeParse(req.body);
+        const body = { ...req.body };
+        if (typeof body.price === "string") {
+            try {
+                body.price = JSON.parse(body.price);
+            } catch (_) {
+                body.price = req.body.price;
+            }
+        }
+        const payload = productSchema.safeParse(body);
         if (!payload.success) {
             await session.abortTransaction()
             return res.status(400).json({ msg: "Invalid inputs", error: payload.error.issues })
@@ -73,7 +81,7 @@ export const getAllProducts = async (req, res) => {
         const skip = (page - 1) * limit
 
         const products = await Product.find()
-            .populate("userId", "name email")
+            // .populate("userId", "name email")
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip(skip)

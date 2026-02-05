@@ -191,4 +191,4 @@ export const removeFromCartController = async (req, res) => {
         console.log("Error while removing the product", error);
         return res.status(500).json({ msg: "Internal server error" })
     }
-}
+} 
