@@ -58,10 +58,10 @@ export const profileUpdateSchema = z.object({
 
 
 export const productSchema = z.object({
-    productName: z.string().min(3, { message: "Product name must be at least 3 characters" }),
-    productDescription: z.string().min(5, { message: "Description must be at least 5 characters" }).optional(),
+    productName: z.string().min(3, { error: "Product name must be at least 3 characters" }),
+    productDescription: z.string().min(5, { error: "Description must be at least 5 characters" }).optional(),
     price: z.object({
-        amount: z.coerce.number().positive({ message: "Price must be a positive number" }),
+        amount: z.coerce.number().positive({ error: "Price must be a positive number" }),
         currency: z.enum(["INR", "$"]).default("INR")
     })
 });
@@ -89,7 +89,7 @@ const imageFileSchema = z.instanceof(File)
     .refine((f) => f.name?.length, "Filename required")
     .refine((f) => f.type.startsWith("image/"), "File must be an image")
     .refine((f) => f.size >= 0, "File size must be non-negative")
-    .refine((f) => f.size <= MAX_FILE_SIZE, "Max file size is 5MB");
+    .refine((f) => f.size <= MAX_FILE_SIZE, { error: "Max file size is 5MB" });
 
 export const createProductFormSchema = productSchema.extend({
     images: z.array(imageFileSchema)

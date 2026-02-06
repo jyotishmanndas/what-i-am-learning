@@ -9,10 +9,13 @@ import axios from "axios";
 import { Field, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { axiosInstance } from '@/config/axiosInstance';
+import { useAppDispatch } from '@/hooks/useRedux';
+import { setUser } from '@/features/authSlice';
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -27,6 +30,7 @@ const LoginForm = () => {
       const res = await axiosInstance.post("/api/v1/auth/login", data);
       if (res.status === 200) {
         toast.success(res.data.msg, { position: "bottom-center" });
+        dispatch(setUser(res.data.data))
         form.reset()
         navigate("/home");
       }

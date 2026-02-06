@@ -52,10 +52,11 @@ export const registerController = async (req, res) => {
             })
             .json({
                 success: true, msg: "register successfully", token: accessToken, data: {
+                    _id: newUser._id,
                     name: newUser.name,
                     email: newUser.email,
                     mobile: newUser.mobile,
-                    cartId: cart._id
+                    cart: cart._id
                 }
             })
     } catch (error) {
@@ -102,7 +103,13 @@ export const loginController = async (req, res) => {
                 maxAge: 6 * 24 * 60 * 60 * 1000
             })
             .json({
-                success: true, msg: "login successfully", token: accessToken
+                success: true, msg: "login successfully", token: accessToken, data: {
+                    _id: existingUser._id,
+                    name: existingUser.name,
+                    email: existingUser.email,
+                    mobile: existingUser.mobile,
+                    cart: existingUser.cart
+                }
             })
     } catch (error) {
         console.log("Error while login", error);

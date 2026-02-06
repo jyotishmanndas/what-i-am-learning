@@ -1,0 +1,169 @@
+import { axiosInstance } from '@/config/axiosInstance'
+import { ArrowLeft, ShoppingCart } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router'
+
+export type ProductDetail = {
+    _id: string
+    productName: string
+    productDescription?: string
+    price: { amount: number; currency: string }
+    image: string[]
+}
+
+const ProductDetails = () => {
+    const { productId } = useParams<{ productId: string }>()
+    const [product, setProduct] = useState<ProductDetail | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+
+    useEffect(() => {
+        if (!productId) {
+            setLoading(false)
+            setError('Invalid product')
+            return
+        }
+        setLoading(true)
+        setError(null)
+        axiosInstance
+            .get(`/api/v1/product/${productId}`)
+            .then((res) => {
+                setProduct(res.data.product)
+                setSelectedImageIndex(0)
+            })
+            .catch((err) => {
+                const msg =
+                    err.response?.status === 404
+                        ? 'Product not found'
+                        : err.response?.data?.msg ?? 'Failed to load product'
+                setError(msg)
+                setProduct(null)
+            })
+            .finally(() => setLoading(false))
+    }, [productId])
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-teal-50/20">
+                <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+                    <div className="animate-pulse flex flex-col lg:flex-row gap-8">
+                        <div className="aspect-square w-full lg:w-1/2 rounded-2xl bg-slate-200" />
+                        <div className="flex-1 space-y-4">
+                            <div className="h-8 w-3/4 rounded-lg bg-slate-200" />
+                            <div className="h-4 w-full rounded bg-slate-200" />
+                            <div className="h-4 w-1/2 rounded bg-slate-200" />
+                            <div className="h-12 w-32 rounded-xl bg-slate-200 mt-6" />
+                        </div>
+                    </div>
+                </main>
+            </div>
+        )
+    }
+
+    if (error || !product) {
+        return (
+            <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-teal-50/20 flex items-center justify-center px-4">
+                <div className="text-center">
+                    <p className="text-slate-600 font-medium">{error ?? 'Product not found'}</p>
+                    <Link
+                        to="/home"
+                        className="inline-flex items-center gap-2 mt-4 text-teal-600 hover:text-teal-700 font-medium"
+                    >
+                        <ArrowLeft className="h-4 w-4" /> Back to products
+                    </Link>
+                </div>
+            </div>
+        )
+    }
+
+    const images = product.image?.length ? product.image : []
+    const mainImage = images[selectedImageIndex] ?? images[0]
+    const priceLabel =
+        product.price.currency === 'INR' ? `₹${product.price.amount}` : `$${product.price.amount}`
+
+    return (
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-teal-50/20">
+            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+                <Link
+                    to="/home"
+                    className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6 sm:mb-8 font-medium transition-colors"
+                >
+                    <ArrowLeft className="h-4 w-4" /> Back to products
+                </Link>
+
+                <article className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                    <div className="w-full lg:w-1/2 space-y-4">
+                        <div className="aspect-square w-full rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                            {mainImage ? (
+                                <img
+                                    src={mainImage}
+                                    alt={product.productName}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
+                                    No image
+                                </div>
+                            )}
+                        </div>
+                        {images.length > 1 && (
+                            <div className="flex gap-2 overflow-x-auto pb-1">
+                                {images.map((src, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => setSelectedImageIndex(i)}
+                                        className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${selectedImageIndex === i
+                                            ? 'border-teal-500 ring-2 ring-teal-500/20'
+                                            : 'border-slate-200 hover:border-slate-300'
+                                            }`}
+                                    >
+                                        <img
+                                            src={src}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex-1 flex flex-col">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                            {product.productName}
+                        </h1>
+                        {product.productDescription && (
+                            <p className="mt-4 text-slate-600 leading-relaxed">
+                                {product.productDescription}
+                            </p>
+                        )}
+                        <div className="mt-6 flex items-baseline gap-2">
+                            <span className="text-3xl font-bold text-slate-900">{priceLabel}</span>
+                            {product.price.currency === 'INR' && (
+                                <span className="text-slate-500 text-sm">INR</span>
+                            )}
+                        </div>
+                        <div className="mt-8 flex flex-wrap gap-3">
+                            <button
+                                type="button"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-teal-600 text-white font-medium rounded-xl hover:bg-teal-700 active:bg-teal-800 shadow-lg shadow-teal-500/25 transition-all"
+                            >
+                                <ShoppingCart className="h-5 w-5" /> Add to cart
+                            </button>
+                            <Link
+                                to="/home"
+                                className="inline-flex items-center justify-center px-6 py-3.5 border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors"
+                            >
+                                Continue shopping
+                            </Link>
+                        </div>
+                    </div>
+                </article>
+            </main>
+        </div>
+    )
+}
+
+export default ProductDetails

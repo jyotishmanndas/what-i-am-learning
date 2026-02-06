@@ -9,10 +9,13 @@ import axios from "axios";
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { axiosInstance } from '@/config/axiosInstance'
+import { useAppDispatch } from '@/hooks/useRedux'
+import { setUser } from '@/features/authSlice'
 
 const SIgnupForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
 
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
@@ -29,6 +32,7 @@ const SIgnupForm = () => {
             const res = await axiosInstance.post("/api/v1/auth/register", data);
             if (res.status === 201) {
                 toast.success(res.data.msg, { position: "bottom-center" });
+                dispatch(setUser(res.data.data))
                 form.reset()
                 navigate("/home");
             }

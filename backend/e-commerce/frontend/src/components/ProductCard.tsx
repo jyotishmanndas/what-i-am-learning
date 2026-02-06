@@ -1,10 +1,12 @@
 import type { ProductPlaceholder } from '@/pages/Home'
-import React from 'react'
 import { Button } from './ui/button'
+import { useNavigate } from 'react-router'
 
 const ProductCard = ({ product }: { product: ProductPlaceholder }) => {
+    const navigate = useNavigate();
+
     return (
-        <div className="h-full flex flex-col rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden transition-shadow hover:shadow-md">
+        <div onClick={() => navigate(`/product/${product._id}`)} className="h-full flex flex-col rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden cursor-pointer transition-shadow hover:shadow-md">
             <div className="aspect-square w-full bg-muted flex items-center justify-center shrink-0">
                 {product.image ? (
                     <img
@@ -30,7 +32,12 @@ const ProductCard = ({ product }: { product: ProductPlaceholder }) => {
                         {product.price.currency === "INR" ? "₹" : "$"}{product.price.amount}
                     </p>
                 )}
-                <Button className="w-full mt-2" variant="default" size="default">
+                <Button
+                    className="w-full mt-2"
+                    variant="default"
+                    size="default"
+                    onClick={(e) => e.stopPropagation()}
+                >
                     Add to cart
                 </Button>
             </div>
