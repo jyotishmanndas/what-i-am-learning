@@ -1,8 +1,8 @@
-import type { ProductPlaceholder } from '@/pages/Home'
+import type { ProductDetail } from '@/lib/types';
 import { Button } from './ui/button'
 import { useNavigate } from 'react-router'
 
-const ProductCard = ({ product }: { product: ProductPlaceholder }) => {
+const ProductCard = ({ product }: { product: ProductDetail }) => {
     const navigate = useNavigate();
 
     return (

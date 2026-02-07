@@ -1,16 +1,6 @@
 import ProductCard from '@/components/ProductCard'
 import { useProductApi } from '@/hooks/useProductApi'
-
-export type ProductPlaceholder = {
-    _id: string
-    productName: string
-    productDescription?: string
-    price: {
-        amount: number,
-        currency: string
-    }
-    image?: string
-}
+import type { ProductDetail } from '@/lib/types';
 
 const Home = () => {
     const { data, isPending } = useProductApi();
@@ -33,7 +23,7 @@ const Home = () => {
 
                 <section className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-4 gap-6 list-none p-0 m-0">
-                        {data.map((product: ProductPlaceholder) => (
+                        {data.map((product: ProductDetail) => (
                             <ProductCard key={product._id} product={product} />
                         ))}
                     </div>

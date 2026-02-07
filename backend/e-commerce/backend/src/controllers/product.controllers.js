@@ -3,6 +3,7 @@ import { uploadToIK } from "../lib/upload.js";
 import { Product } from "../models/product.model.js";
 import { imageSchema, productSchema, updateProductSchema } from "../validations/product.validation.js"
 import { User } from "../models/user.model.js";
+import { redisClient } from "../config/redis.js";
 
 export const productController = async (req, res) => {
     const session = await mongoose.startSession();
@@ -78,14 +79,24 @@ export const getAllProducts = async (req, res) => {
         const limit = Number(req.query.limit) || 10;
         const page = Number(req.query.page) || 1;
 
-        const skip = (page - 1) * limit
+        const skip = (page - 1) * limit;
+
+        const cachedProduct = await redisClient.get(`products`);
+        if (cachedProduct) {
+            return res.status(200)
+                .json({
+                    success: true,
+                    msg: "succesfully fetched products",
+                    products: JSON.parse(cachedProduct)
+                })
+        }
 
         const products = await Product.find()
-            // .populate("userId", "name email")
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip(skip)
 
+        await redisClient.setEx(`products`, 600, JSON.stringify(products))
         return res.status(200).json({ success: true, msg: "succesfully fetched products", products })
     } catch (error) {
         console.log("Error while getting product", error);
@@ -119,12 +130,25 @@ export const getProductById = async (req, res) => {
 
         if (!mongoose.Types.ObjectId.isValid(productId)) {
             return res.status(400).json({ msg: "Invalid product ID format" });
+        };
+
+        const cacheKey = `product:${productId}`
+        const cachedproduct = await redisClient.get(cacheKey);
+        if (cachedproduct) {
+            return res.status(200)
+                .json({
+                    success: true,
+                    msg: "Product fetched successfully",
+                    product: JSON.parse(cachedproduct)
+                })
         }
 
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ msg: "Product not found" })
         };
+
+        await redisClient.setEx(cacheKey, 600, JSON.stringify(product));
 
         return res.status(200).json({ success: true, msg: "Product fetched successfully", product })
     } catch (error) {

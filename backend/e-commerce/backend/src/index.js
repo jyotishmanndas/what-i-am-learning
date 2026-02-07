@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
+import { connectRedis } from "./config/redis.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -24,6 +25,7 @@ app.use("/public", express.static("public"));
 
 
 connectDb();
+connectRedis();
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
