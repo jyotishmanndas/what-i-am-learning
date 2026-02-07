@@ -66,7 +66,7 @@ export const productController = async (req, res) => {
         await session.commitTransaction();
 
         const key = await redisClient.keys("products:*")
-        await redisClient.del(key)
+        await redisClient.del(...key)
         return res.status(201).json({ success: true, msg: "Product created successfully" })
     } catch (error) {
         await session.abortTransaction();

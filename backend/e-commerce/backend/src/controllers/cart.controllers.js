@@ -20,12 +20,7 @@ export const addToCartController = async (req, res) => {
             return res.status(404).json({ msg: "Product not found" });
         };
 
-        const user = await User.findById(req.user._id);
-        // if (!user) {
-        //     return res.status(400).json({ msg: "user not found" });
-        // };
-
-        const cart = await Cart.findById(user.cart);
+        const cart = await Cart.findById(req.user.cart);
         if (!cart) {
             return res.status(404).json({ msg: "cart not found" })
         };
@@ -44,11 +39,10 @@ export const addToCartController = async (req, res) => {
             }
         }, { new: true });
 
-        const key = await redisClient.keys("cart:*");
-        await redisClient.del(key)
+        const cacheKey = `cart:${req.user._id.toString()}`;
+        await redisClient.del(cacheKey);
 
         return res.status(200).json({ success: true, msg: "product added to cart" })
-
     } catch (error) {
         console.log("Error while add to cart", error);
         return res.status(500).json({ msg: "Internal server error" })
@@ -71,12 +65,7 @@ export const incrementCartController = async (req, res) => {
             return res.status(404).json({ msg: "Product not found" });
         };
 
-        const user = await User.findById(req.user._id);
-        // if (!user) {
-        //     return res.status(400).json({ msg: "user not found" });
-        // };
-
-        const cart = await Cart.findById(user.cart);
+        const cart = await Cart.findById(req.user.cart);
         if (!cart) {
             return res.status(404).json({ msg: "cart not found" })
         };
@@ -93,6 +82,9 @@ export const incrementCartController = async (req, res) => {
                     "items.$.quantity": 1
                 }
             }, { new: true });
+
+        const cacheKey = `cart:${req.user._id.toString()}`;
+        await redisClient.del(cacheKey);
 
         return res.status(200).json({ success: true, msg: "quantity incremented successfully" })
     } catch (error) {
@@ -117,12 +109,7 @@ export const decrementCartController = async (req, res) => {
             return res.status(404).json({ msg: "Product not found" });
         };
 
-        const user = await User.findById(req.user._id);
-        // if (!user) {
-        //     return res.status(400).json({ msg: "user not found" });
-        // };
-
-        const cart = await Cart.findById(user.cart);
+        const cart = await Cart.findById(req.user.cart);
         if (!cart) {
             return res.status(404).json({ msg: "cart not found" })
         };
@@ -143,6 +130,9 @@ export const decrementCartController = async (req, res) => {
                     "items.$.quantity": -1
                 }
             }, { new: true });
+
+        const cacheKey = `cart:${req.user._id.toString()}`;
+        await redisClient.del(cacheKey);
 
         return res.status(200).json({ success: true, msg: "quantity decremented successfully" })
     } catch (error) {
@@ -167,12 +157,7 @@ export const removeFromCartController = async (req, res) => {
             return res.status(404).json({ msg: "Product not found" });
         };
 
-        const user = await User.findById(req.user._id);
-        // if (!user) {
-        //     return res.status(400).json({ msg: "user not found" });
-        // };
-
-        const cart = await Cart.findById(user.cart);
+        const cart = await Cart.findById(req.user.cart);
         if (!cart) {
             return res.status(404).json({ msg: "cart not found" })
         };
@@ -189,6 +174,9 @@ export const removeFromCartController = async (req, res) => {
                 }
             }
         }, { new: true })
+
+        const cacheKey = `cart:${req.user._id.toString()}`;
+        await redisClient.del(cacheKey);
 
         return res.status(200).json({ msg: "Product removed from cart" })
     } catch (error) {

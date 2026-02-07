@@ -1,8 +1,9 @@
 import { axiosInstance } from '@/config/axiosInstance'
+import { useCartApi } from '@/hooks/useCartApi'
 import type { ProductDetail } from '@/lib/types'
+import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { ShoppingCart } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
@@ -14,16 +15,11 @@ interface ProductDetailsViewProps {
 }
 
 const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex, productId }: ProductDetailsViewProps) => {
-    const [cart, setCart] = useState<any>(null);
+    const { data } = useCartApi();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
-    useEffect(() => {
-        axiosInstance.get(`/api/v1/cart/getcart`)
-            .then(res => setCart(res.data.cart))
-            .catch((err) => toast.error(err.response.data.msg))
-    }, []);
-
-    const itemOnCart = cart?.items?.find((i: any) => i.productId._id === productId)
+    const itemOnCart = data?.items?.find((i: any) => i.productId._id === productId)
 
     const images = product.image?.length ? product.image : []
     const mainImage = images[selectedImageIndex] ?? images[0]
@@ -33,7 +29,8 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
         try {
             const res = await axiosInstance.post(`/api/v1/cart/add/${productId}`);
             if (res.status === 200) {
-                toast.success(res.data.msg, { position: "bottom-center" })
+                toast.success(res.data.msg, { position: "bottom-center" });
+                queryClient.invalidateQueries({ queryKey: ["cart"] });
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -111,7 +108,6 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
                                 <ShoppingCart className="h-5 w-5" /> Add to cart
                             </>
                         )}
-                        {/* <ShoppingCart className="h-5 w-5" /> Add to cart */}
                     </button>
                     <Link
                         to="/home"

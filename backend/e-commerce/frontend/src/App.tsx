@@ -6,6 +6,7 @@ import ProductCreate from './pages/ProductCreate'
 import Authlayout from './layouts/Authlayout'
 import Home from './pages/Home'
 import ProductDetails from './pages/ProductDetails'
+import Cart from './pages/Cart'
 import { axiosInstance } from './config/axiosInstance'
 import { useAppDispatch } from './hooks/useRedux'
 import { toast } from 'sonner'
@@ -31,6 +32,7 @@ const App = () => {
       <Route path='/product/create' element={<ProductCreate />} />
       <Route path='/product/:productId' element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
       <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>} />
+      <Route path='/cart' element={<ProtectedRoute><Cart /></ProtectedRoute>} />
     </Routes>
   )
 }
