@@ -1,8 +1,10 @@
+import { redisClient } from "../config/redis.js";
 import { createAccessToken, createRefreshToken } from "../lib/authService.js";
 import { Cart } from "../models/cart.model.js";
 import { User } from "../models/user.model.js";
 import { loginSchema, registerSchema } from "../validations/auth.validation.js"
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const registerController = async (req, res) => {
     try {
@@ -129,6 +131,9 @@ export const logout = async (req, res) => {
             return res.status(404).json({ msg: "User not found" })
         };
 
+        const token = req.cookies.accessToken;
+        await redisClient.setEx(`blacklist:${token}`, 900, "1")
+
         return res.status(200)
             .clearCookie("accessToken", {
                 httpOnly: true,
@@ -142,5 +147,47 @@ export const logout = async (req, res) => {
     } catch (error) {
         console.log("Error while logout", error);
         return res.status(500).json({ msg: "Internal server error" })
+    }
+};
+
+export const refreshToken = async (req, res) => {
+    try {
+        const incommingRefreshToken = req.cookies.refreshToken;
+        if (!incommingRefreshToken) {
+            return res.status(401).json({ msg: "Unauthorized request" })
+        };
+
+        const decodedToken = jwt.verify(incommingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+        const user = await User.findById(decodedToken.userId);
+        if (!user) {
+            return res.status(401).json({ msg: "user not found" })
+        };
+
+        if (user.refreshToken !== incommingRefreshToken) {
+            return res.status(401).json({ msg: "Refresh token is expired or used" })
+        };
+
+        const accessToken = createAccessToken(user._id);
+        const refreshToken = createRefreshToken(user._id);
+
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
+
+        return res.status(200)
+            .cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 15 * 60 * 1000
+            })
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 6 * 24 * 60 * 60 * 1000
+            })
+            .json({ success: true, msg: "Access token refreshed" })
+    } catch (error) {
+        console.log("Error while refresh token", error);
+        return res.status(500).json({ msg: "Internal server error" });
     }
 };

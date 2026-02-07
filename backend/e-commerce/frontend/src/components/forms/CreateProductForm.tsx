@@ -38,7 +38,7 @@ const CreateProductForm = () => {
             if (res.status === 201) {
                 toast.success(res.data.msg ?? "Product created successfully", { position: "bottom-center" })
                 form.reset()
-                navigate("/")
+                navigate("/home")
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {

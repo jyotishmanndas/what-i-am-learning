@@ -7,7 +7,7 @@ import { Link, useParams } from 'react-router'
 
 
 const ProductDetails = () => {
-    const { productId } = useParams<{ productId: string }>()
+    const { productId } = useParams<{ productId: string}>()
     const [product, setProduct] = useState<ProductDetail | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -82,7 +82,7 @@ const ProductDetails = () => {
                     <ArrowLeft className="h-4 w-4" /> Back to products
                 </Link>
 
-                <ProductDetailsView product={product} selectedImageIndex={selectedImageIndex} setSelectedImageIndex={setSelectedImageIndex} />
+                <ProductDetailsView productId={productId} product={product} selectedImageIndex={selectedImageIndex} setSelectedImageIndex={setSelectedImageIndex} />
             </main>
         </div>
     )

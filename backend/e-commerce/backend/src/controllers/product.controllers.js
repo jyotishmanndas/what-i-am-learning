@@ -64,6 +64,9 @@ export const productController = async (req, res) => {
         }, { session, new: true });
 
         await session.commitTransaction();
+
+        const key = await redisClient.keys("products:*")
+        await redisClient.del(key)
         return res.status(201).json({ success: true, msg: "Product created successfully" })
     } catch (error) {
         await session.abortTransaction();
@@ -132,7 +135,7 @@ export const getProductById = async (req, res) => {
             return res.status(400).json({ msg: "Invalid product ID format" });
         };
 
-        const cacheKey = `product:${productId}`
+        const cacheKey = `products:${productId}`
         const cachedproduct = await redisClient.get(cacheKey);
         if (cachedproduct) {
             return res.status(200)
@@ -191,8 +194,10 @@ export const updateProductController = async (req, res) => {
             $set: { updateData }
         }, { new: true, runValidators: true });
 
-        return res.status(200).json({ msg: "Product updated successfully" });
+        const key = await redisClient.keys("products:*");
+        await redisClient.del(key);
 
+        return res.status(200).json({ msg: "Product updated successfully" });
     } catch (error) {
         console.log("Error while updating the product", error);
         return res.status(500).json({ msg: "Internal server error while updating the product" })
@@ -225,8 +230,10 @@ export const deleteProduct = async (req, res) => {
             $pull: { products: product._id }
         });
 
-        return res.status(200).json({ success: true, msg: "Product deleted successfully" });
+        const key = await redisClient.keys("products:*")
+        await redisClient.del(key);
 
+        return res.status(200).json({ success: true, msg: "Product deleted successfully" });
     } catch (error) {
         console.log("Error while deleting the product", error);
         return res.status(500).json({ msg: "Internal server error while deleting the product" })

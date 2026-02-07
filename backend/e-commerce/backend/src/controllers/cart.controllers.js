@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
+import { redisClient } from "../config/redis.js";
 
 export const addToCartController = async (req, res) => {
     try {
@@ -41,7 +42,10 @@ export const addToCartController = async (req, res) => {
                     quantity: 1
                 }
             }
-        }, { new: true })
+        }, { new: true });
+
+        const key = await redisClient.keys("cart:*");
+        await redisClient.del(key)
 
         return res.status(200).json({ success: true, msg: "product added to cart" })
 
@@ -188,7 +192,37 @@ export const removeFromCartController = async (req, res) => {
 
         return res.status(200).json({ msg: "Product removed from cart" })
     } catch (error) {
-        console.log("Error while removing the product", error);
+        console.log("Error while removing the product from the cart", error);
         return res.status(500).json({ msg: "Internal server error" })
     }
-} 
+}
+
+export const getCartController = async (req, res) => {
+    try {
+        const userId = req.user._id.toString();
+        const cachedKey = `cart:${userId}`;
+
+        const cachedCart = await redisClient.get(cachedKey);
+        if (cachedCart) {
+            return res.status(200)
+                .json({
+                    success: true,
+                    msg: "cart fetched successfully",
+                    cart: JSON.parse(cachedCart)
+                })
+        };
+
+        const cart = await Cart.findById(req.user.cart.toString())
+            .populate("items.productId", "productName productDescription price image").lean()
+        if (!cart) {
+            return res.status(400).json({ msg: "No cart found" })
+        };
+
+        await redisClient.setEx(cachedKey, 600, JSON.stringify(cart))
+
+        return res.status(200).json({ success: true, msg: "cart fetched successfully", cart })
+    } catch (error) {
+        console.log("Error while getting the cart", error);
+        return res.status(500).json({ msg: "Internal server error" })
+    }
+};

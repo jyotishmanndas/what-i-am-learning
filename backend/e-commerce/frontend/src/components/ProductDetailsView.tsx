@@ -1,19 +1,46 @@
+import { axiosInstance } from '@/config/axiosInstance'
 import type { ProductDetail } from '@/lib/types'
+import axios from 'axios'
 import { ShoppingCart } from 'lucide-react'
-import { Link } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router'
+import { toast } from 'sonner'
 
 interface ProductDetailsViewProps {
     product: ProductDetail,
     selectedImageIndex: number,
-    setSelectedImageIndex: (i: number) => void
+    setSelectedImageIndex: (i: number) => void,
+    productId: string | undefined
 }
 
-const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex }: ProductDetailsViewProps) => {
+const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex, productId }: ProductDetailsViewProps) => {
+    const [cart, setCart] = useState<any>(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        axiosInstance.get(`/api/v1/cart/getcart`)
+            .then(res => setCart(res.data.cart))
+            .catch((err) => toast.error(err.response.data.msg))
+    }, []);
+
+    const itemOnCart = cart?.items?.find((i: any) => i.productId._id === productId)
 
     const images = product.image?.length ? product.image : []
     const mainImage = images[selectedImageIndex] ?? images[0]
-    const priceLabel =
-        product.price.currency === 'INR' ? `₹${product.price.amount}` : `$${product.price.amount}`
+    const priceLabel = product.price.currency === 'INR' ? `₹${product.price.amount}` : `$${product.price.amount}`
+
+    const addToCart = async () => {
+        try {
+            const res = await axiosInstance.post(`/api/v1/cart/add/${productId}`);
+            if (res.status === 200) {
+                toast.success(res.data.msg, { position: "bottom-center" })
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data.msg)
+            }
+        }
+    };
 
     return (
         <article className="flex flex-col lg:flex-row gap-8 lg:gap-12">
@@ -24,6 +51,7 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
                             src={mainImage}
                             alt={product.productName}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-50">
@@ -70,11 +98,20 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
                     )}
                 </div>
                 <div className="mt-8 flex flex-wrap gap-3">
-                    <button
+                    <button onClick={() => itemOnCart ? navigate("/cart") : addToCart()}
                         type="button"
                         className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-teal-600 text-white font-medium rounded-xl hover:bg-teal-700 active:bg-teal-800 shadow-lg shadow-teal-500/25 transition-all"
                     >
-                        <ShoppingCart className="h-5 w-5" /> Add to cart
+                        {itemOnCart ? (
+                            <>
+                                <ShoppingCart className="h-5 w-5" /> Go to cart
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingCart className="h-5 w-5" /> Add to cart
+                            </>
+                        )}
+                        {/* <ShoppingCart className="h-5 w-5" /> Add to cart */}
                     </button>
                     <Link
                         to="/home"
