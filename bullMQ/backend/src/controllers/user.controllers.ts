@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../models/user.model";
 import bcrypt from "bcrypt"
 import { createAccessToken, createRefreshToken } from "../utils/authService";
+import { emailQueue } from "../queues/email.queue";
 
 export const signupController = async (req: Request, res: Response) => {
     try {
@@ -24,6 +25,12 @@ export const signupController = async (req: Request, res: Response) => {
             email,
             name,
             password: hashedPassword
+        });
+
+        await emailQueue.add("welcomeEmail", {
+            id: user.id,
+            email: user.email,
+            name: user.name
         });
 
         const accessToken = createAccessToken(user._id.toString());
