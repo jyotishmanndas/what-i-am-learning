@@ -5,8 +5,8 @@ export interface IUser extends Document {
     email: string;
     password: string;
     refreshToken: string;
-    resetPasswordToken: string,
-    resetPasswordExpires: Date,
+    resetPasswordToken?: string | undefined,
+    resetPasswordExpires?: Date | undefined,
     createdAt: Date;
     updatedAt: Date;
 }
@@ -28,13 +28,15 @@ const userSchema = new Schema<IUser>({
         required: true
     },
     refreshToken: {
-        type: String
+        type: String,
+        default: undefined
     },
     resetPasswordToken: {
         type: String
     },
     resetPasswordExpires: {
-        type: Date
+        type: Date,
+        default: undefined
     },
 }, {
     timestamps: true

@@ -9,5 +9,5 @@ export const createRefreshToken = (userId: string) => {
 };
 
 export const createForgotPasswordToken = (userId: string) => {
-    return jwt.sign({ userId }, process.env.RESET_PASSWORD_TOKEN_SECRET!, { expiresIn: "7d" })
+    return jwt.sign({ userId }, process.env.RESET_PASSWORD_TOKEN_SECRET!, { expiresIn: "5m" })
 };
