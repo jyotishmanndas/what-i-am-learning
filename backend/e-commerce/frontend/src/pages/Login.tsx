@@ -3,16 +3,21 @@ import React from 'react'
 
 const Login = () => {
     return (
-        <div className="min-h-screen flex flex-col">
-            <main className="flex-1 flex flex-col justify-center px-6">
-                <div className="w-full max-w-sm mx-auto shadow-xl rounded-lg px-6 py-5 font-mono">
-                    <h2 className="text-3xl font-bold text-black mb-8 text-center">
-                        Welcome back
-                    </h2>
-                    <LoginForm />
-                </div>
-            </main>
+    <main className="flex flex-1 flex-col justify-center px-4 pb-10 pt-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-md">
+        <div className="rounded-3xl border border-border/70 bg-card/80 px-6 py-7 shadow-lg shadow-black/2 backdrop-blur-sm sm:px-8 sm:py-9">
+          <div className="mb-6 text-center">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Welcome back
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Sign in to continue shopping.
+            </p>
+          </div>
+          <LoginForm />
         </div>
+      </div>
+    </main>
     )
 }
 

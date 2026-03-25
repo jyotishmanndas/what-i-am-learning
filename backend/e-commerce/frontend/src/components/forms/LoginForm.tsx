@@ -58,7 +58,7 @@ const LoginForm = () => {
                   <Mail className='h-5 w-5 text-gray-400' />
                 </div>
                 <input {...field} aria-invalid={fieldState.invalid} type='email'
-                  className='w-full pl-10 pr-3 py-2 border-b-3 rounded focus:outline-none duration-200'
+                  className='w-full rounded-xl border border-input bg-background px-10 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60'
                   placeholder='Enter your email'
                 />
               </div>
@@ -81,7 +81,7 @@ const LoginForm = () => {
                   <Lock className='h-5 w-5 text-gray-400' />
                 </div>
                 <input {...field} aria-invalid={fieldState.invalid} type={showPassword ? "text" : "password"}
-                  className='w-full pl-10 pr-3 py-2 border-b-3 rounded focus:outline-none duration-200'
+                  className='w-full rounded-xl border border-input bg-background px-10 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60'
                   placeholder='Enter your password'
                 />
                 <button type='button' onClick={() => setShowPassword((prev) => !prev)} className='absolute inset-y-0 right-0 pr-3 flex items-center'>
@@ -100,7 +100,7 @@ const LoginForm = () => {
         />
       </FieldGroup>
 
-      <button className='group w-full px-3 py-3 bg-black text-white mt-5 rounded-lg flex items-center justify-center gap-3'>
+      <button className='group w-full mt-5 flex items-center justify-center gap-3 rounded-xl bg-foreground px-3 py-3 text-sm font-medium text-background transition-all hover:bg-foreground/90'>
         Login
         <ArrowRight className='h-4 w-4 text-neutral-400 group-hover:translate-x-1 transition-transform' />
       </button>

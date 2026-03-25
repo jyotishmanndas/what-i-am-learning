@@ -6,6 +6,8 @@ import { axiosInstance } from '@/config/axiosInstance'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import axios from 'axios'
+import Navbar from '@/components/Navbar'
+import { AnimatePresence, motion } from 'framer-motion'
 
 const Cart = () => {
     const queryClient = useQueryClient()
@@ -62,16 +64,14 @@ const Cart = () => {
     )
     const currency = items[0]?.productId?.price?.currency ?? 'INR'
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 via-white to-teal-50/40">
-                <div className="text-slate-500 animate-pulse">Loading cart...</div>
-            </div>
-        )
+    const pageVariants = {
+        hidden: { opacity: 0, y: 12 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
     }
 
     return (
         <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-teal-50/40">
+            <Navbar />
             {/* Decorative background elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-teal-200/30 rounded-full blur-3xl" />
@@ -79,9 +79,14 @@ const Cart = () => {
                 <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-100/20 rounded-full blur-3xl" />
             </div>
 
-            <main className="relative flex-1 px-4 sm:px-6 lg:px-8 pt-24 pb-16 max-w-6xl mx-auto">
+            <motion.main
+                initial="hidden"
+                animate="visible"
+                variants={pageVariants}
+                className="relative mx-auto flex-1 px-4 pt-24 pb-16 sm:px-6 lg:px-8 max-w-6xl"
+            >
                 {/* Header */}
-                <header className="mb-12">
+                <header className="mb-10">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-linear-to-br from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30">
                             <ShoppingBag className="h-6 w-6" strokeWidth={2} />
@@ -98,8 +103,24 @@ const Cart = () => {
                 </header>
 
                 <section className="space-y-8">
-                    {items.length === 0 ? (
+                    {isLoading ? (
                         <div className="relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-16 text-center">
+                            <div className="absolute inset-0 bg-linear-to-br from-slate-50/60 to-transparent" />
+                            <div className="relative flex flex-col items-center gap-4">
+                                <div className="h-10 w-40 rounded-full bg-slate-100 animate-pulse" />
+                                <div className="h-4 w-64 rounded-full bg-slate-100 animate-pulse" />
+                                <div className="mt-4 flex w-full max-w-md flex-col gap-3">
+                                    <div className="h-16 rounded-2xl bg-slate-100 animate-pulse" />
+                                    <div className="h-16 rounded-2xl bg-slate-100 animate-pulse" />
+                                </div>
+                            </div>
+                        </div>
+                    ) : items.length === 0 ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-xl border border-slate-200/60 shadow-xl shadow-slate-200/50 p-16 text-center"
+                        >
                             <div className="absolute inset-0 bg-linear-to-br from-slate-50/50 to-transparent" />
                             <div className="relative flex flex-col items-center">
                                 <div className="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center mb-6">
@@ -121,16 +142,22 @@ const Cart = () => {
                                     </Button>
                                 </Link>
                             </div>
-                        </div>
+                        </motion.div>
                     ) : (
-                        <div className="grid lg:grid-cols-3 gap-8">
+                        <div className="grid gap-8 lg:grid-cols-3">
                             {/* Cart items */}
                             <div className="lg:col-span-2 space-y-5">
-                                {items.map((item: any) => (
-                                    <article
-                                        key={item._id}
-                                        className="group relative flex gap-5 sm:gap-6 p-5 sm:p-6 rounded-2xl bg-white/80 backdrop-blur-xl border border-slate-200/60 shadow-lg shadow-slate-200/30 hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300 hover:-translate-y-0.5"
-                                    >
+                                <AnimatePresence initial={false}>
+                                    {items.map((item: any) => (
+                                        <motion.article
+                                            key={item._id}
+                                            layout
+                                            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                                            transition={{ duration: 0.25, ease: 'easeOut' }}
+                                            className="group relative flex gap-5 sm:gap-6 p-5 sm:p-6 rounded-2xl bg-white/80 backdrop-blur-xl border border-slate-200/60 shadow-lg shadow-slate-200/30 hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300 hover:-translate-y-0.5"
+                                        >
                                         <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden bg-slate-100 ring-1 ring-slate-200/50">
                                             {item.productId.image?.[0] ? (
                                                 <img
@@ -199,18 +226,25 @@ const Cart = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                    </article>
-                                ))}
+                                        </motion.article>
+                                    ))}
+                                </AnimatePresence>
                             </div>
 
                             {/* Order summary - sticky sidebar */}
                             <div className="lg:col-span-1">
-                                <div className="sticky top-24 rounded-2xl bg-white/90 backdrop-blur-xl border border-slate-200/60 shadow-xl shadow-slate-200/40 p-6 overflow-hidden">
+                                <motion.div
+                                    layout
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                                    className="sticky top-24 overflow-hidden rounded-2xl border border-slate-200/60 bg-white/90 p-6 shadow-xl shadow-slate-200/40 backdrop-blur-xl"
+                                >
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-teal-400/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2" />
                                     <h3 className="text-lg font-semibold text-slate-900 mb-4 relative">
                                         Order Summary
                                     </h3>
-                                    <div className="space-y-3 mb-6 relative">
+                                    <div className="mb-6 space-y-3 relative">
                                         <div className="flex justify-between text-slate-600">
                                             <span>Subtotal</span>
                                             <span className="font-medium text-slate-900">
@@ -252,12 +286,12 @@ const Cart = () => {
                                             </Button>
                                         </Link>
                                     </div>
-                                </div>
+                                </motion.div>
                             </div>
                         </div>
                     )}
                 </section>
-            </main>
+            </motion.main>
         </div>
     )
 }

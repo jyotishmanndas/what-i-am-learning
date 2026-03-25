@@ -23,7 +23,7 @@ const LoginForm = () => {
 
     async function onSubmit(data: z.infer<typeof loginSchema>) {
         try {
-            const res = await axiosInstance.post("/api/v1/user/signin", data);
+            const res = await axiosInstance.post("/api/v1/auth/signin", data);
             if (res.status === 200) {
                 toast.success(res.data.msg);
                 form.reset()

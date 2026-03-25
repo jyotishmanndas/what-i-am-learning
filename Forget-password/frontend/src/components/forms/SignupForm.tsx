@@ -24,7 +24,7 @@ const SignupForm = () => {
 
     async function onSubmit(data: z.infer<typeof registerSchema>) {
         try {
-            const res = await axiosInstance.post("/api/v1/user/signup", data);
+            const res = await axiosInstance.post("/api/v1/auth/signup", data);
             if (res.status === 200) {
                 toast.success(res.data.msg);
                 form.reset()

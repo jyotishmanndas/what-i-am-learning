@@ -4,20 +4,20 @@ dotenv.config();
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASS
-    }
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_SERVER_USER,
+    pass: process.env.EMAIL_SERVER_PASS
+  }
 });
 
 export const sendWelcomeEmail = async ({ email, name }: { email: string, name: string }) => {
-    try {
-        await transporter.sendMail({
-            from: process.env.EMAIL_SERVER_USER,
-            to: email,
-            subject: "Welcome to our platform",
-            html: `
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_SERVER_USER,
+      to: email,
+      subject: "Welcome to our platform",
+      html: `
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#f6f9fc;padding:40px 0;">
         <tr>
           <td align="center">
@@ -40,7 +40,7 @@ export const sendWelcomeEmail = async ({ email, name }: { email: string, name: s
               <tr>
                 <td align="center" style="padding:20px 0;">
                   <a href="${process.env.CLIENT_URL || "#"
-                }" 
+        }" 
                      style="background:#4f46e5;color:#ffffff;padding:12px 24px;
                             border-radius:6px;text-decoration:none;font-size:16px;">
                     Get Started
@@ -65,8 +65,8 @@ export const sendWelcomeEmail = async ({ email, name }: { email: string, name: s
         </tr>
       </table>
     `,
-        })
-    } catch (error) {
-        console.error("Email error:", error);
-    }
+    })
+  } catch (error) {
+    console.error("Email error:", error);
+  }
 }

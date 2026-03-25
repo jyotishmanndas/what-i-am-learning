@@ -28,7 +28,7 @@ const ResetPasswordForm = ({ token }: { token: string | null }) => {
                 toast.error("Invalid or expired reset link");
                 return;
             }
-            const res = await axiosInstance.patch("/api/v1/user/reset-password", { data, token });
+            const res = await axiosInstance.patch("/api/v1/auth/updatepassword", { data, token });
             if (res.status === 200) {
                 toast.success(res.data.msg);
                 form.reset()

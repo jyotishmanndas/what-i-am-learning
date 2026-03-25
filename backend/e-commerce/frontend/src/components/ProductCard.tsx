@@ -1,39 +1,45 @@
 import type { ProductDetail } from '@/lib/types';
 import { Button } from './ui/button'
 import { useNavigate } from 'react-router'
+import { motion } from 'framer-motion'
 
 const ProductCard = ({ product }: { product: ProductDetail }) => {
     const navigate = useNavigate();
 
     return (
-        <div onClick={() => navigate(`/product/${product._id}`)} className="h-full flex flex-col rounded-lg border border-border bg-card text-card-foreground shadow-sm overflow-hidden cursor-pointer transition-shadow hover:shadow-md">
-            <div className="aspect-square w-full bg-muted flex items-center justify-center shrink-0">
+        <motion.article
+            onClick={() => navigate(`/product/${product._id}`)}
+            whileHover={{ y: -4, scale: 1.01 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+            className="flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md"
+        >
+            <div className="flex aspect-square w-full shrink-0 items-center justify-center bg-muted">
                 {product.image ? (
                     <img
                         src={product.image[0]}
                         alt={product.productName}
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
                     />
                 ) : (
-                    <span className="text-muted-foreground text-sm">No image</span>
+                    <span className="text-sm text-muted-foreground">No image</span>
                 )}
             </div>
-            <div className="flex flex-col flex-1 p-4 gap-2">
-                <h2 className="font-semibold text-foreground line-clamp-2">
+            <div className="flex flex-1 flex-col gap-2 p-4">
+                <h2 className="line-clamp-2 text-sm font-medium text-foreground sm:text-base">
                     {product.productName}
                 </h2>
                 {product.productDescription && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 flex-1">
+                    <p className="flex-1 text-xs text-muted-foreground line-clamp-2 sm:text-sm">
                         {product.productDescription}
                     </p>
                 )}
                 {product.price != null && (
-                    <p className="text-lg font-semibold text-foreground mt-auto">
+                    <p className="mt-auto text-base font-semibold text-foreground sm:text-lg">
                         {product.price.currency === "INR" ? "₹" : "$"}{product.price.amount}
                     </p>
                 )}
                 <Button
-                    className="w-full mt-2"
+                    className="mt-3 w-full rounded-xl"
                     variant="default"
                     size="default"
                     onClick={(e) => e.stopPropagation()}
@@ -41,7 +47,7 @@ const ProductCard = ({ product }: { product: ProductDetail }) => {
                     Add to cart
                 </Button>
             </div>
-        </div>
+        </motion.article>
     )
 }
 

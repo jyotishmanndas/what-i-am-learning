@@ -135,7 +135,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         user.resetPasswordExpires = new Date(Date.now() + 5 * 60 * 1000)
         await user.save()
 
-        const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`
+        const resetLink = `http://localhost:5000/api/v1/auth/resetpassword/${resetToken}?callbackUrl=http://localhost:5173/reset-password`
 
         await sendMail({ email, link: resetLink });
 
@@ -147,7 +147,43 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
 };
 
-export const resetPassword = async (req: Request, res: Response) => {
+export const verifyResetPasswordToken = async (req: Request, res: Response) => {
+    try {
+        const { token } = req.params;
+        if (typeof token !== "string") {
+            return res.status(400).json({ msg: "Invalid token" })
+        };
+
+        const { callbackUrl } = req.query;
+
+        const decoded = jwt.verify(token, process.env.RESET_PASSWORD_TOKEN_SECRET!) as { userId: string }
+        if (!decoded || !decoded.userId) {
+            return res.status(400).json({ msg: "Unauthorized token" })
+        };
+
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex")
+
+        const user = await User.findOne({
+            _id: decoded.userId,
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+        if (!user) {
+            return res.status(400).json({ success: false, msg: "Invalid or expired token" })
+        };
+
+        return res.redirect(`${callbackUrl}?token=${token}`);
+
+    } catch (error) {
+        console.log("Error while verify token", error);
+        return res.status(500).json({ msg: "Internal server error" })
+    }
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
     try {
         const { token } = req.body;
         if (!token) {
@@ -192,4 +228,4 @@ export const resetPassword = async (req: Request, res: Response) => {
         console.log("Error while updating password", error);
         return res.status(500).json({ msg: "Internal server error" })
     }
-}
+};

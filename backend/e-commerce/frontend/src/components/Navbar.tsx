@@ -1,19 +1,75 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
+import { ShoppingCart, User2 } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 const Navbar = () => {
     const navigate = useNavigate();
-    return (
-        <div className='w-full px-14 py-4 border shadow-sm flex items-center justify-between font-mono fixed top-0 left-0 z-50 bg-white/70 backdrop-blur-2xl'>
-            <Link to="/" className='text-3xl font-extrabold'>
-                FLIPKART
-            </Link>
+    const location = useLocation();
 
-            <div className='flex items-center gap-4'>
-                <button onClick={() => navigate("/login")} className='px-3 py-2 border'>Log in</button>
-                <button onClick={() => navigate("/signup")} className='px-3 py-2 border'>Sign up</button>
+    const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+
+    return (
+        <motion.header
+            initial={{ y: -24, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="w-full border-b border-border/60 bg-white/80 backdrop-blur-xl fixed top-0 left-0 z-40"
+        >
+            <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+                <button
+                    type="button"
+                    onClick={() => navigate('/home')}
+                    className="flex items-center gap-2"
+                >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-neutral-900 text-white shadow-md shadow-neutral-900/20">
+                        <span className="text-xs font-semibold tracking-tight">FK</span>
+                    </div>
+                    <span className="text-lg font-semibold tracking-tight text-foreground">
+                        Flipkart Minimal
+                    </span>
+                </button>
+
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => navigate('/cart')}
+                        className="inline-flex h-9 items-center gap-2 rounded-full border border-border/80 bg-background px-3 text-sm text-muted-foreground shadow-sm transition-all hover:border-foreground/30 hover:bg-foreground/2 hover:text-foreground"
+                    >
+                        <ShoppingCart className="h-4 w-4" />
+                        <span className="hidden text-xs font-medium sm:inline">Cart</span>
+                    </button>
+
+                    {isAuthPage ? (
+                        <button
+                            type="button"
+                            onClick={() => navigate('/home')}
+                            className="inline-flex h-9 items-center gap-2 rounded-full bg-foreground px-4 text-xs font-medium text-background shadow-sm transition-all hover:bg-foreground/90"
+                        >
+                            <User2 className="h-4 w-4" />
+                            Home
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/login')}
+                                className="hidden h-9 items-center rounded-full border border-border/80 bg-background px-4 text-xs font-medium text-foreground shadow-sm transition-all hover:border-foreground/40 hover:bg-foreground/2 sm:inline-flex"
+                            >
+                                Log in
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/signup')}
+                                className="inline-flex h-9 items-center rounded-full bg-foreground px-4 text-xs font-medium text-background shadow-sm transition-all hover:bg-foreground/90"
+                            >
+                                Sign up
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+        </motion.header>
     )
 }
 

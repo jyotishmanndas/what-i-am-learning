@@ -6,6 +6,7 @@ import axios from 'axios'
 import { ShoppingCart } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
+import { motion } from 'framer-motion'
 
 interface ProductDetailsViewProps {
     product: ProductDetail,
@@ -40,14 +41,22 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
     };
 
     return (
-        <article className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        <motion.article
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="flex flex-col gap-8 lg:flex-row lg:gap-12"
+        >
             <div className="w-full lg:w-1/2 space-y-4">
-                <div className="aspect-square w-full rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                <motion.div
+                    layout
+                    className="aspect-square w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                >
                     {mainImage ? (
                         <img
                             src={mainImage}
                             alt={product.productName}
-                            className="w-full h-full object-cover"
+                            className="h-full w-full object-cover"
                             loading="lazy"
                         />
                     ) : (
@@ -55,7 +64,7 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
                             No image
                         </div>
                     )}
-                </div>
+                </motion.div>
                 {images.length > 1 && (
                     <div className="flex gap-2 overflow-x-auto pb-1">
                         {images.map((src, i) => (
@@ -95,9 +104,12 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
                     )}
                 </div>
                 <div className="mt-8 flex flex-wrap gap-3">
-                    <button onClick={() => itemOnCart ? navigate("/cart") : addToCart()}
+                    <motion.button
+                        whileTap={{ scale: 0.97 }}
+                        whileHover={{ y: -1 }}
+                        onClick={() => itemOnCart ? navigate("/cart") : addToCart()}
                         type="button"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-teal-600 text-white font-medium rounded-xl hover:bg-teal-700 active:bg-teal-800 shadow-lg shadow-teal-500/25 transition-all"
+                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-600 px-6 py-3.5 font-medium text-white shadow-lg shadow-teal-500/25 transition-all hover:bg-teal-700 active:bg-teal-800"
                     >
                         {itemOnCart ? (
                             <>
@@ -108,7 +120,7 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
                                 <ShoppingCart className="h-5 w-5" /> Add to cart
                             </>
                         )}
-                    </button>
+                    </motion.button>
                     <Link
                         to="/home"
                         className="inline-flex items-center justify-center px-6 py-3.5 border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors"
@@ -117,7 +129,7 @@ const ProductDetailsView = ({ product, selectedImageIndex, setSelectedImageIndex
                     </Link>
                 </div>
             </div>
-        </article>
+        </motion.article>
     )
 }
 

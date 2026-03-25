@@ -1,17 +1,14 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import * as z from "zod"
-import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react'
+import { ArrowRight, Mail } from 'lucide-react'
 import axios from "axios";
-import { Link, useNavigate } from 'react-router'
 import { axiosInstance } from '../../config/axiosInstance'
 import toast from 'react-hot-toast'
 import { resetPsswordSchema } from '../../validations/user.validation'
 
 const ForgotPasswordForm = () => {
-    const [showPassword, setShowPassword] = useState(false);
-
     const form = useForm<z.infer<typeof resetPsswordSchema>>({
         resolver: zodResolver(resetPsswordSchema),
         defaultValues: {
@@ -21,7 +18,7 @@ const ForgotPasswordForm = () => {
 
     async function onSubmit(data: z.infer<typeof resetPsswordSchema>) {
         try {
-            const res = await axiosInstance.post("/api/v1/user/forgot-password", data);
+            const res = await axiosInstance.post("/api/v1/auth/forgot-password", data);
             if (res.status === 200) {
                 toast.success(res.data.msg);
                 form.reset()
