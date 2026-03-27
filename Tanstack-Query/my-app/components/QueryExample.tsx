@@ -1,6 +1,6 @@
 "use client"
 
-import { useFetchedData } from '@/hooks/useFetchedData'
+import { useFetchedData } from '@/hooks/usePostApi'
 import React, { useState } from 'react'
 
 const QueryExample = () => {
