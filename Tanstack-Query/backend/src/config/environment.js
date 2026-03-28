@@ -6,7 +6,7 @@ export default {
     MONGODB_URI: `${process.env.MONGODB_URI}/tanstack-query`,
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
-    REDIS_PORT: process.env.REDIS_PORT || 6379,
+    REDIS_PORT: Number(process.env.REDIS_PORT) || 6379,
     REDIS_PASSWORD: process.env.REDIS_PASSWORD,
     REDIS_HOST: process.env.REDIS_HOST || 'localhost',
     EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
