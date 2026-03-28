@@ -93,12 +93,15 @@ class AuthService {
 
         const resetLink = `${BASE_URL}/api/v1/auth/verify/${resetToken}?callbackUrl=${FRONTEND_URL}/reset-password`;
         try {
-            await emailQueue.add("resetPassword", {
+           const job =  await emailQueue.add("resetPassword", {
                 id: user._id,
                 email: user.email,
                 name: `${user.firstName} ${user.lastName}`,
                 resetLink
-            })
+            });
+
+            console.log("job added", job.id);
+            
         } catch (error) {
             throw new AppError("Failed to send reset email", 500);
         }

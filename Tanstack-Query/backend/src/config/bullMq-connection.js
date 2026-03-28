@@ -3,9 +3,10 @@ import config from "./environment.js";
 const { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } = config
 
 const bullmqConnection = {
-    REDIS_PORT: REDIS_PORT,
-    REDIS_PASSWORD: REDIS_PASSWORD,
-    REDIS_HOST: REDIS_HOST
-}
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    password: REDIS_PASSWORD,
+    maxRetriesPerRequest: null
+};
 
 export default bullmqConnection;

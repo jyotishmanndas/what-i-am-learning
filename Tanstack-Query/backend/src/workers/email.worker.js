@@ -1,6 +1,6 @@
 import {Worker} from "bullmq";
-import bullmqConnection from "../config/bullMq-connection";
-import { sendResetPasswordEmail } from "../services/sendMailServices/resetPasswordEmail";
+import bullmqConnection from "../config/bullMq-connection.js";
+import { sendResetPasswordEmail } from "../services/sendMailServices/resetPasswordEmail.js";
 
 const emailWorker = new Worker(
     "email",

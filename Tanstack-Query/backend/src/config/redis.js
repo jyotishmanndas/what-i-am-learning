@@ -1,7 +1,7 @@
 import { createClient } from "redis";
-import config from "./environment";
+import config from "./environment.js";
 
-const { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } = config
+const { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } = config;
 
 const client = createClient({
     password: REDIS_PASSWORD,
