@@ -4,9 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-   "start": "node src/server.js",
-   "dev": "nodemon src/server.js"
-
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,11 +13,14 @@
   "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.71.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.3.3"
+    "mongoose": "^9.3.3",
+    "nodemailer": "^8.0.4",
+    "redis": "^5.11.0"
   },
   "devDependencies": {
     "dotenv": "^17.3.1",

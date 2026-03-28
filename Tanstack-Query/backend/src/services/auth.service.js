@@ -1,6 +1,13 @@
+import { emailQueue } from "../queues/email.queue.js";
 import MongoUserRepository from "../repositories/implementations/mongoUserRepository.js";
-import { createAccessToken, createRefreshToken } from "../utils/authService.js";
+import { createAccessToken, createRefreshToken, createResetPasswordToken } from "../utils/authService.js";
 import AppError from "../utils/error.js";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import config from "../config/environment.js";
+
+const { BASE_URL, FRONTEND_URL, RESET_PASSWORD_TOKEN_SECRET } = config
+
 
 class AuthService {
     constructor() {
@@ -15,7 +22,7 @@ class AuthService {
             email: user.email,
             phone: user.phone
         }
-    }
+    };
 
     async register(userData) {
         const { email } = userData;
@@ -69,6 +76,72 @@ class AuthService {
         if (!user) {
             throw new AppError("Logout failed", 400);
         }
+    };
+
+    async forgotPassword(email) {
+        const user = await this.userRepository.findUserByEmail(email);
+        if (!user) return;
+
+        const resetToken = createResetPasswordToken(user._id);
+
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+
+        await this.userRepository.saveResetPasswordToken(user._id, hashedToken);
+
+        const resetLink = `${BASE_URL}/api/v1/auth/verify/${resetToken}?callbackUrl=${FRONTEND_URL}/reset-password`;
+        try {
+            await emailQueue.add("resetPassword", {
+                id: user._id,
+                email: user.email,
+                name: `${user.firstName} ${user.lastName}`,
+                resetLink
+            })
+        } catch (error) {
+            throw new AppError("Failed to send reset email", 500);
+        }
+    };
+
+    async verifyResetPasswordToken(token) {
+        const decoded = jwt.verify(token, RESET_PASSWORD_TOKEN_SECRET);
+        if (!decoded || !decoded.userId) {
+            throw new AppError("Invalid or expired token", 401)
+        };
+
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        const user = await this.userRepository.findResetPasswordToken(decoded.userId, hashedToken);
+        if (!user) {
+            throw new AppError("Invalid or expired token", 401)
+        };
+
+        return true;
+    };
+
+    async updatePassword(token, password) {
+        const decoded = jwt.verify(token, RESET_PASSWORD_TOKEN_SECRET);
+        if (!decoded || !decoded.userId) {
+            throw new AppError("Invalid or expired token", 401)
+        };
+
+        const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+        const user = await this.userRepository.findResetPasswordToken(decoded.userId, hashedToken);
+        if (!user) {
+            throw new AppError("Invalid or expired token", 401)
+        };
+
+        await this.userRepository.updatePassword(decoded.userId, password);
+
+        return true
     }
 };
 

@@ -22,6 +22,18 @@ class IUserRepository {
     async removeRefreshToken(userId) {
         throw new Error("Method not implemented")
     };
+
+    async saveResetPasswordToken(userId, token) {
+        throw new Error("Method not implemented")
+    };
+
+    async findResetPasswordToken(userId, token) {
+        throw new Error("Method not implemented")
+    };
+
+    async updatePassword(userId, password) {
+        throw new Error("Method not implemented")
+    };
 }
 
 export default IUserRepository;

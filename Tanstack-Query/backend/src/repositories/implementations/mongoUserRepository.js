@@ -49,6 +49,49 @@ class MongoUserRepository extends IUserRepository {
         } catch (error) {
             throw new AppError(`Failed to remove refreshToken: ${error.message}`, 400, error)
         }
+    };
+
+    async saveResetPasswordToken(userId, token) {
+        try {
+            return await User.findByIdAndUpdate(userId, {
+                $set: {
+                    resetPasswordToken: token,
+                    resetPasswordExpires: new Date(Date.now() + 5 * 60 * 1000)
+                }
+            })
+        } catch (error) {
+            throw new AppError(`Failed to update resetPasswordToken: ${error.message}`, 400, error)
+        }
+    };
+
+    async findResetPasswordToken(userId, token) {
+        try {
+            return await User.findOne({
+                _id: userId,
+                resetPasswordToken: token,
+                resetPasswordExpires: { $gt: Date.now() }
+            })
+        } catch (error) {
+            throw new AppError(`Failed to find user: ${error.message}`, 400, error)
+        }
+    };
+
+    async updatePassword(userId, password) {
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new AppError("User not found", 404);
+            }
+
+            user.password = password;
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            user.refreshToken = undefined;
+
+            await user.save();
+        } catch (error) {
+            throw new AppError(`Failed to update password: ${error.message}`, 400);
+        }
     }
 };
 

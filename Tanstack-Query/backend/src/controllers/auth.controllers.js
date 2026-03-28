@@ -1,4 +1,5 @@
 import AuthService from "../services/auth.service.js"
+import AppError from "../utils/error.js";
 
 class AuthController {
     constructor() {
@@ -75,6 +76,63 @@ class AuthController {
                 })
                 .json({ success: true, message: "Logged out successfully" });
 
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    forgotPassword = async (req, res, next) => {
+        try {
+            const { email } = req.body;
+            await this.authService.forgotPassword(email);
+
+            res.status(200).json({
+                success: true,
+                message: "Password reset link sent to your email"
+            });
+
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    verifyResetPasswordToken = async (req, res, next) => {
+        try {
+            const { token } = req.params;
+            const { callbackUrl } = req.query;
+
+            if (typeof token !== "string") {
+                throw new AppError("Invalid token", 400);
+            };
+
+            await this.authService.verifyResetPasswordToken(token)
+
+            res.redirect(`${callbackUrl}?token=${token}`)
+        } catch (error) {
+            next(error)
+        }
+    };
+
+    updatePassword = async(req, res, next)=>{
+        try {
+            const {newPassword, confirmPassword} = req.body;
+            const {token} = req.params;
+
+            if (typeof token !== "string") {
+                throw new AppError("Invalid token", 400);
+            };
+
+            if(!newPassword || !confirmPassword){
+                throw new AppError("Both new and confirm passwor are required", 400)
+            };
+
+            if(newPassword !== confirmPassword){
+                throw new AppError("Both password should match", 400)
+            };
+
+            await this.authService.updatePassword(token, newPassword);
+
+            res.status(200).json({success: true, msg: "password updated successfully"})
 
         } catch (error) {
             next(error)
