@@ -57,6 +57,28 @@ class AuthController {
         } catch (error) {
             next(error)
         }
+    };
+
+    logOut = async (req, res, next) => {
+        try {
+            const userId = req.user._id;
+            await this.authService.logOut(userId);
+
+            res.status(200)
+                .clearCookie("accessToken", {
+                    httpOnly: true,
+                    secure: true,
+                })
+                .clearCookie("refreshToken", {
+                    httpOnly: true,
+                    secure: true,
+                })
+                .json({ success: true, message: "Logged out successfully" });
+
+
+        } catch (error) {
+            next(error)
+        }
     }
 };
 

@@ -55,6 +55,21 @@ class AuthService {
         const safeUser = this.getSafeUserPayload(existingUser)
         return { accessToken, refreshToken, user: safeUser }
     };
+
+    async getUserById(userId) {
+        const user = await this.userRepository.findUserById(userId);
+        if (!user) {
+            throw new AppError("User not found", 404);
+        };
+        return user
+    };
+
+    async logOut(userId) {
+        const user = await this.userRepository.removeRefreshToken(userId);
+        if (!user) {
+            throw new AppError("Logout failed", 400);
+        }
+    }
 };
 
 

@@ -3,11 +3,23 @@ class IUserRepository {
         throw new Error("Method not implemented")
     };
 
-    async findUserByEmail(email){
+    async findUserByEmail(email) {
         throw new Error("Method not implemented")
     };
 
+    async findUserById(id) {
+        throw new Error("Method not implemented")
+    }
+
     async saveRefreshToken(userId, token) {
+        throw new Error("Method not implemented")
+    };
+
+    async findUserById(id) {
+        throw new Error("Method not implemented")
+    };
+
+    async removeRefreshToken(userId) {
         throw new Error("Method not implemented")
     };
 }

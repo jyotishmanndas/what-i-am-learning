@@ -31,6 +31,24 @@ class MongoUserRepository extends IUserRepository {
         } catch (error) {
             throw new AppError(`Falied to save refresh token: ${error.message}`, 400, error)
         }
+    };
+
+    async findUserById(id) {
+        try {
+            return await User.findById(id)
+        } catch (error) {
+            throw new AppError(`Falied to find user: ${error.message}`, 400, error)
+        }
+    };
+
+    async removeRefreshToken(userId) {
+        try {
+            return await User.findByIdAndUpdate(userId, {
+                $set: { refreshToken: null }
+            })
+        } catch (error) {
+            throw new AppError(`Failed to remove refreshToken: ${error.message}`, 400, error)
+        }
     }
 };
 
