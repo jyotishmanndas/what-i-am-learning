@@ -24,6 +24,21 @@ class AuthService {
         }
     };
 
+    async verifyAndFindResetToken(token) {
+        const decoded = jwt.verify(token, RESET_PASSWORD_TOKEN_SECRET);
+        if (!decoded?.userId) throw new AppError("Invalid or expired token", 401);
+
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        const user = await this.userRepository.findResetPasswordToken(decoded.userId, hashedToken);
+        if (!user) throw new AppError("Invalid or expired token", 401);
+
+        return { decoded, user };
+    };
+
     async register(userData) {
         const { email } = userData;
 
@@ -46,7 +61,7 @@ class AuthService {
     async login({ email, password }) {
         const existingUser = await this.userRepository.findUserByEmail(email);
         if (!existingUser) {
-            throw new AppError(`user doesn't exists with this email`, 400)
+            throw new AppError(`user doesn't exists with this email`, 404)
         };
 
         const isPasswordMatch = await existingUser.comparePassword(password);
@@ -91,9 +106,9 @@ class AuthService {
 
         await this.userRepository.saveResetPasswordToken(user._id, hashedToken);
 
-        const resetLink = `${BASE_URL}/api/v1/auth/verify/${resetToken}?callbackUrl=${FRONTEND_URL}/reset-password`;
+        const resetLink = `${BASE_URL}/api/v1/auth/verify/${resetToken}?callbackUrl=${FRONTEND_URL}/resetpassword`;
         try {
-           const job =  await emailQueue.add("resetPassword", {
+            const job = await emailQueue.add("resetPassword", {
                 id: user._id,
                 email: user.email,
                 name: `${user.firstName} ${user.lastName}`,
@@ -101,49 +116,21 @@ class AuthService {
             });
 
             console.log("job added", job.id);
-            
+
         } catch (error) {
             throw new AppError("Failed to send reset email", 500);
         }
     };
 
     async verifyResetPasswordToken(token) {
-        const decoded = jwt.verify(token, RESET_PASSWORD_TOKEN_SECRET);
-        if (!decoded || !decoded.userId) {
-            throw new AppError("Invalid or expired token", 401)
-        };
-
-        const hashedToken = crypto
-            .createHash("sha256")
-            .update(token)
-            .digest("hex");
-
-        const user = await this.userRepository.findResetPasswordToken(decoded.userId, hashedToken);
-        if (!user) {
-            throw new AppError("Invalid or expired token", 401)
-        };
-
-        return true;
+        await this.verifyAndFindResetToken(token);
+        return true
     };
 
     async updatePassword(token, password) {
-        const decoded = jwt.verify(token, RESET_PASSWORD_TOKEN_SECRET);
-        if (!decoded || !decoded.userId) {
-            throw new AppError("Invalid or expired token", 401)
-        };
-
-        const hashedToken = crypto
-        .createHash("sha256")
-        .update(token)
-        .digest("hex");
-
-        const user = await this.userRepository.findResetPasswordToken(decoded.userId, hashedToken);
-        if (!user) {
-            throw new AppError("Invalid or expired token", 401)
-        };
+        const { decoded } = await this.verifyAndFindResetToken(token);
 
         await this.userRepository.updatePassword(decoded.userId, password);
-
         return true
     }
 };

@@ -1,10 +1,9 @@
-import QueryExample from '@/components/QueryExample'
-import React from 'react'
+import Signup from "./signup/page"
 
 const page = () => {
   return (
     <div>
-      <QueryExample />
+      <Signup />
     </div>
   )
 }
