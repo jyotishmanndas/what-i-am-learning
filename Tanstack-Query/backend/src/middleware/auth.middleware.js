@@ -30,7 +30,9 @@ export const verifyJWT = async (req, res, next) => {
             throw new AppError(`User not found`, 404)
         };
 
-        req.user = user;
+        const { refreshToken, password, ...safeUser } = user.toObject();
+
+        req.user = safeUser;
         next();
     } catch (error) {
         next(new AppError(error.message || "Invalid or expired token.", 401));
