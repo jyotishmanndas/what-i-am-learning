@@ -6,11 +6,9 @@ import { User } from "../models/user.model.js";
 import { redisClient } from "../config/redis.js";
 
 export const productController = async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
         const body = { ...req.body };
+
         if (typeof body.price === "string") {
             try {
                 body.price = JSON.parse(body.price);
@@ -18,62 +16,67 @@ export const productController = async (req, res) => {
                 body.price = req.body.price;
             }
         }
+
         const payload = productSchema.safeParse(body);
         if (!payload.success) {
-            await session.abortTransaction()
-            return res.status(400).json({ msg: "Invalid inputs", error: payload.error.issues })
-        };
+            return res.status(400).json({
+                msg: "Invalid inputs",
+                error: payload.error.issues
+            });
+        }
 
         const images = req.files;
         if (!images || images.length === 0) {
-            await session.abortTransaction();
-            return res.status(400).json({ msg: "Image is required" })
-        };
+            return res.status(400).json({ msg: "Image is required" });
+        }
 
         const imageCheck = imageSchema.safeParse(images);
         if (!imageCheck.success) {
-            await session.abortTransaction();
-            return res.status(400).json({ msg: "Invalid file" })
-        };
+            return res.status(400).json({ msg: "Invalid file" });
+        }
 
         const existingProduct = await Product.findOne({
             productName: payload.data.productName
-        }).session(session)
+        });
 
         if (existingProduct) {
-            await session.abortTransaction();
-            return res.status(400).json({ msg: "Product already exists with this name" })
-        };
+            return res.status(400).json({
+                msg: "Product already exists with this name"
+            });
+        }
 
         const uploadImages = await Promise.all(
-            imageCheck.data.map(async (u) => await uploadToIK(u.buffer, u.originalname))
+            imageCheck.data.map(async (u) =>
+                await uploadToIK(u.buffer, u.originalname)
+            )
         );
 
-        const product = await Product.create([{
+        const product = await Product.create({
             productName: payload.data.productName,
             productDescription: payload.data.productDescription,
             price: payload.data.price,
             image: uploadImages.map((u) => u.url),
             userId: req.user._id
-        }], { session });
+        });
 
         await User.findByIdAndUpdate(req.user._id, {
             $addToSet: {
-                products: product[0]._id
+                products: product._id
             }
-        }, { session, new: true });
+        });
 
-        await session.commitTransaction();
+        await redisClient.del("products");
 
-        const key = await redisClient.keys("products:*")
-        await redisClient.del(...key)
-        return res.status(201).json({ success: true, msg: "Product created successfully" })
+        return res.status(201).json({
+            success: true,
+            msg: "Product created successfully"
+        });
+
     } catch (error) {
-        await session.abortTransaction();
         console.log("Error while create product", error);
-        return res.status(500).json({ msg: "Internal server error while creating product" })
-    } finally {
-        session.endSession();
+        return res.status(500).json({
+            msg: "Internal server error while creating product"
+        });
     }
 };
 

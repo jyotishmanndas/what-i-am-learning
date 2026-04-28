@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo
+    container_name: ecom-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ecom_mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5 
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+
+  backend:
+    build: .
+    container_name: e-commerce
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017
+      PORT: 5000
+
+      REDIS_URL: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+volumes:
+  ecom_mongo:
